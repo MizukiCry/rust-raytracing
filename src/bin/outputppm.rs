@@ -1,4 +1,6 @@
 // cargo run --bin outputppm | out-file output.ppm -encoding ascii
+use rust_raytracing::vec3::{Vec3, print_color};
+
 fn main() {
     const HEIGHT: i32 = 720;
     const WIDTH: i32 = 1280;
@@ -12,7 +14,8 @@ fn main() {
             let red = ((i as f64) / (HEIGHT as f64) * (MAX_COLOR as f64)) as i32;
             let green = ((j as f64) / (WIDTH as f64) * (MAX_COLOR as f64)) as i32;
             let blue = 0;
-            println!("{red} {green} {blue}");
+            let color = Vec3::new(red as f64, green as f64, blue as f64);
+            print_color(color);
         }
     }
     eprintln!("Done. [{HEIGHT} lines]");
