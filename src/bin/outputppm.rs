@@ -7,6 +7,7 @@ fn main() {
     println!("P3\n{WIDTH} {HEIGHT}\n{MAX_COLOR}");
 
     for i in 0..HEIGHT {
+        eprintln!("Progressing... [{} / {HEIGHT}]", i + 1);
         for j in 0..WIDTH {
             let red = ((i as f64) / (HEIGHT as f64) * (MAX_COLOR as f64)) as i32;
             let green = ((j as f64) / (WIDTH as f64) * (MAX_COLOR as f64)) as i32;
@@ -14,4 +15,5 @@ fn main() {
             println!("{red} {green} {blue}");
         }
     }
+    eprintln!("Done. [{HEIGHT} lines]");
 }
