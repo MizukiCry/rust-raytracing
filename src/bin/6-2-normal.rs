@@ -1,4 +1,4 @@
-// cargo run | out-file output.ppm -encoding ascii
+// cargo run --bin 6-2-normal | out-file output.ppm -encoding ascii
 use rust_raytracing::ray::Ray;
 use rust_raytracing::vec3::{print_color, Vec3};
 

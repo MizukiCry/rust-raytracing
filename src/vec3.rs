@@ -130,6 +130,7 @@ impl std::fmt::Display for Vec3 {
 }
 
 pub fn print_color(color: Vec3) {
+    let color = color * 255.9999;
     println!("{} {} {}", color.x as i32, color.y as i32, color.z as i32);
 }
 
