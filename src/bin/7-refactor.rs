@@ -1,4 +1,4 @@
-// cargo run | out-file output.ppm -encoding ascii
+// cargo run --bin 7-refactor | out-file output.ppm -encoding ascii
 use rust_raytracing::utils::*;
 use std::rc::Rc;
 
