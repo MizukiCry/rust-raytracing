@@ -1,25 +1,12 @@
-// cargo run --bin 6-2-normal | out-file output.ppm -encoding ascii
-use rust_raytracing::ray::Ray;
-use rust_raytracing::vec3::{print_color, Vec3};
+// cargo run --bin 6-8-hittable | out-file output.ppm -encoding ascii
+use std::rc::Rc;
 
-fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> f64 {
-    let oc = ray.origin - center;
-    let a = ray.direction.length_squared();
-    let h = ray.direction.dot(oc);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = h * h - a * c;
-    if discriminant.is_sign_negative() {
-        -1.0
-    } else {
-        (-h - discriminant.sqrt()) / a
-    }
-}
+use rust_raytracing::utils::*;
 
-fn ray_color(ray: Ray) -> Vec3 {
-    let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, ray);
-    if t.is_sign_positive() {
-        let normal = ray.at(t) - Vec3::new(0.0, 0.0, -1.0);
-        return 0.5 * (normal + Vec3::new(1.0, 1.0, 1.0));
+fn ray_color(ray: &Ray, world: &HittableList) -> Vec3 {
+    let mut record = HitRecord::default();
+    if world.hit(ray, Interval::new(0.0, f64::INFINITY), &mut record) {
+        return 0.5 * (record.normal + Vec3::new(1.0, 1.0, 1.0));
     }
     let a = 0.5 * (ray.direction.unit().y + 1.0);
     (1.0 - a) * Vec3::new(1.0, 1.0, 1.0) + a * Vec3::new(0.5, 0.7, 1.0)
@@ -28,9 +15,18 @@ fn ray_color(ray: Ray) -> Vec3 {
 fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const MAX_COLOR: i32 = 255;
-
     let image_width = 500;
     let image_height = ((image_width as f64 / ASPECT_RATIO) as i32).max(1);
+
+    let mut world = HittableList::default();
+    world.add(Rc::new(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -1.0),
+        0.5,
+    ))));
+    world.add(Rc::new(Box::new(Sphere::new(
+        Vec3::new(0.0, -100.5, -1.0),
+        100.0,
+    ))));
 
     let viewport_height = 2.0;
     let viewport_width = viewport_height * (image_width as f64) / (image_height as f64);
@@ -39,7 +35,6 @@ fn main() {
 
     let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
     let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
-
     let pixel_delta_u = viewport_u / (image_width as f64);
     let pixel_delta_v = viewport_v / (image_height as f64);
 
@@ -55,7 +50,7 @@ fn main() {
             let pixel_center = pixel00 + (j as f64) * pixel_delta_u + (i as f64) * pixel_delta_v;
             let ray_direction = pixel_center - camera_center;
             let ray = Ray::new(camera_center, ray_direction);
-            let color = ray_color(ray);
+            let color = ray_color(&ray, &world);
             print_color(color);
         }
     }

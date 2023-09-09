@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3 {
@@ -21,7 +21,7 @@ impl Vec3 {
     }
 
     pub fn unit(&self) -> Self {
-        self.clone() / self.length()
+        *self / self.length()
     }
 
     pub fn dot(&self, rhs: Self) -> f64 {
@@ -39,7 +39,7 @@ impl Vec3 {
 
 impl Default for Vec3 {
     fn default() -> Self {
-        Vec3::new(0.0, 0.0, 0.0)
+        Vec3::new(f64::default(), f64::default(), f64::default())
     }
 }
 
@@ -72,6 +72,14 @@ impl SubAssign for Vec3 {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self::new(-self.x, -self.y, -self.z)
     }
 }
 
