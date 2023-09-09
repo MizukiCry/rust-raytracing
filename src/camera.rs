@@ -1,5 +1,3 @@
-use rand::{rngs::ThreadRng, Rng};
-
 use crate::utils::*;
 
 const MAX_COLOR: i32 = 255;
@@ -7,17 +5,22 @@ const MAX_COLOR: i32 = 255;
 pub struct Camera {
     pub aspect_ratio: f64,
     pub samples_per_pixel: i32,
+    pub max_bounce: i32,
     pub image_width: i32,
     pub image_height: i32,
     camera_center: Vec3,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
-    rng: ThreadRng,
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, samples_per_pixel: i32, image_width: i32) -> Self {
+    pub fn new(
+        aspect_ratio: f64,
+        samples_per_pixel: i32,
+        max_bounce: i32,
+        image_width: i32,
+    ) -> Self {
         let image_height = ((image_width as f64 / aspect_ratio) as i32).max(1);
         let viewport_height = 2.0;
         let viewport_width = viewport_height * (image_width as f64) / (image_height as f64);
@@ -36,13 +39,13 @@ impl Camera {
         Self {
             aspect_ratio,
             samples_per_pixel,
+            max_bounce,
             image_width,
             image_height,
             camera_center,
             pixel00,
             pixel_delta_u,
             pixel_delta_v,
-            rng: rand::thread_rng(),
         }
     }
 
@@ -57,7 +60,7 @@ impl Camera {
             for j in 0..self.image_width {
                 let mut color = Vec3::default();
                 for _ in 0..self.samples_per_pixel {
-                    color += Self::ray_color(&self.get_random_ray(i, j), world);
+                    color += Self::ray_color(&self.get_random_ray(i, j), self.max_bounce, world);
                 }
 
                 color = color / (self.samples_per_pixel as f64) * (MAX_COLOR as f64 + 1.0);
@@ -76,8 +79,8 @@ impl Camera {
         let pixel_center =
             self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
         let pixel_sample = pixel_center
-            + self.rng.gen_range(-0.5..0.5) * self.pixel_delta_u
-            + self.rng.gen_range(-0.5..0.5) * self.pixel_delta_v;
+            + random_double(-0.5, 0.5) * self.pixel_delta_u
+            + random_double(-0.5, 0.5) * self.pixel_delta_v;
         let ray_direction = pixel_sample - self.camera_center;
         Ray::new(self.camera_center, ray_direction)
     }
@@ -104,10 +107,14 @@ impl Camera {
         self.pixel00 = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
-    fn ray_color(ray: &Ray, world: &HittableList) -> Vec3 {
+    fn ray_color(ray: &Ray, depth: i32, world: &HittableList) -> Vec3 {
+        if depth == 0 {
+            return Vec3::default();
+        }
         let mut record = HitRecord::default();
         if world.hit(ray, Interval::new(0.0, f64::INFINITY), &mut record) {
-            return 0.5 * (record.normal + Vec3::new(1.0, 1.0, 1.0));
+            let direction = Vec3::random_on_hemisphere(record.normal);
+            return 0.5 * Self::ray_color(&Ray::new(record.p, direction), depth - 1, world);
         }
         let a = 0.5 * (ray.direction.unit().y + 1.0);
         (1.0 - a) * Vec3::new(1.0, 1.0, 1.0) + a * Vec3::new(0.5, 0.7, 1.0)
@@ -116,6 +123,6 @@ impl Camera {
 
 impl Default for Camera {
     fn default() -> Self {
-        Self::new(1.0, 1, 100)
+        Self::new(1.0, 5, 5, 100)
     }
 }

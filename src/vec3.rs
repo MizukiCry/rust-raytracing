@@ -1,5 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+use crate::utils::random_double;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3 {
     pub x: f64,
@@ -29,17 +31,51 @@ impl Vec3 {
     }
 
     pub fn cross(&self, rhs: Self) -> Self {
-        Vec3::new(
+        Self::new(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,
             self.x * rhs.y - self.y * rhs.x,
         )
     }
+
+    pub fn random() -> Self {
+        Self::new(
+            random_double(0.0, 1.0),
+            random_double(0.0, 1.0),
+            random_double(0.0, 1.0),
+        )
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Self::new(
+            random_double(min, max),
+            random_double(min, max),
+            random_double(min, max),
+        )
+    }
+
+    pub fn random_unit() -> Self {
+        loop {
+            let p = Self::random_range(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p.unit();
+            }
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: Self) -> Self {
+        let unit = Self::random_unit();
+        if unit.dot(normal).is_sign_positive() {
+            unit
+        } else {
+            -unit
+        }
+    }
 }
 
 impl Default for Vec3 {
     fn default() -> Self {
-        Vec3::new(f64::default(), f64::default(), f64::default())
+        Self::new(f64::default(), f64::default(), f64::default())
     }
 }
 

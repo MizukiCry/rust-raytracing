@@ -8,3 +8,5 @@ default-run = "rust-raytracing"
 
 [dependencies]
 rand = "0.8.5"
+# lazy_static = "1.4.0"
+# once_cell = "1.18.0"

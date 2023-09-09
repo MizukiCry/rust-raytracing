@@ -5,6 +5,8 @@ pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
 pub use crate::vec3::Vec3;
 
+pub use rand::{random, thread_rng, Rng};
+
 pub fn equal(a: f64, b: f64) -> bool {
     (a - b).abs() < 1e-8
 }
@@ -15,4 +17,8 @@ pub fn equal_vec3(a: Vec3, b: Vec3) -> bool {
 
 pub fn degree_to_radian(degree: f64) -> f64 {
     degree * std::f64::consts::PI / 180.0
+}
+
+pub fn random_double(min: f64, max: f64) -> f64 {
+    min + (max - min) * random::<f64>()
 }
