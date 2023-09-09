@@ -1,19 +1,23 @@
+use rand::{rngs::ThreadRng, Rng};
+
 use crate::utils::*;
 
 const MAX_COLOR: i32 = 255;
 
 pub struct Camera {
     pub aspect_ratio: f64,
+    pub samples_per_pixel: i32,
     pub image_width: i32,
     pub image_height: i32,
     camera_center: Vec3,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
+    rng: ThreadRng,
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: i32) -> Self {
+    pub fn new(aspect_ratio: f64, samples_per_pixel: i32, image_width: i32) -> Self {
         let image_height = ((image_width as f64 / aspect_ratio) as i32).max(1);
         let viewport_height = 2.0;
         let viewport_width = viewport_height * (image_width as f64) / (image_height as f64);
@@ -31,16 +35,18 @@ impl Camera {
 
         Self {
             aspect_ratio,
+            samples_per_pixel,
             image_width,
             image_height,
             camera_center,
             pixel00,
             pixel_delta_u,
             pixel_delta_v,
+            rng: rand::thread_rng(),
         }
     }
 
-    pub fn render(&self, world: &HittableList) {
+    pub fn render(&mut self, world: &HittableList) {
         println!(
             "P3\n{} {}\n{}",
             self.image_width, self.image_height, MAX_COLOR
@@ -49,16 +55,31 @@ impl Camera {
         for i in 0..self.image_height {
             eprintln!("Progressing... [{} / {}]", i + 1, self.image_height);
             for j in 0..self.image_width {
-                let pixel_center = self.pixel00
-                    + (j as f64) * self.pixel_delta_u
-                    + (i as f64) * self.pixel_delta_v;
-                let ray_direction = pixel_center - self.camera_center;
-                let ray = Ray::new(self.camera_center, ray_direction);
-                let color = Self::ray_color(&ray, world);
-                print_color(color);
+                let mut color = Vec3::default();
+                for _ in 0..self.samples_per_pixel {
+                    color += Self::ray_color(&self.get_random_ray(i, j), world);
+                }
+
+                color = color / (self.samples_per_pixel as f64) * (MAX_COLOR as f64 + 1.0);
+                println!(
+                    "{} {} {}",
+                    (color.x as i32).clamp(0, MAX_COLOR),
+                    (color.y as i32).clamp(0, MAX_COLOR),
+                    (color.z as i32).clamp(0, MAX_COLOR)
+                );
             }
         }
         eprintln!("Done. [{} lines]", self.image_height);
+    }
+
+    fn get_random_ray(&mut self, i: i32, j: i32) -> Ray {
+        let pixel_center =
+            self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
+        let pixel_sample = pixel_center
+            + self.rng.gen_range(-0.5..0.5) * self.pixel_delta_u
+            + self.rng.gen_range(-0.5..0.5) * self.pixel_delta_v;
+        let ray_direction = pixel_sample - self.camera_center;
+        Ray::new(self.camera_center, ray_direction)
     }
 
     /// Initializes according to aspect_ratio and image_width.
@@ -95,6 +116,6 @@ impl Camera {
 
 impl Default for Camera {
     fn default() -> Self {
-        Self::new(1.0, 5)
+        Self::new(1.0, 1, 100)
     }
 }

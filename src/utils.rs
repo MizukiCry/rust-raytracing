@@ -1,9 +1,9 @@
+pub use crate::camera::Camera;
 pub use crate::hittable::{HitRecord, Hittable, HittableList};
+pub use crate::interval::Interval;
 pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
-pub use crate::vec3::{print_color, Vec3};
-pub use crate::interval::Interval;
-pub use crate::camera::Camera;
+pub use crate::vec3::Vec3;
 
 pub fn equal(a: f64, b: f64) -> bool {
     (a - b).abs() < 1e-8
