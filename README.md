@@ -1,4 +1,5 @@
 # rust-raytracing
-Ray Tracing in One Weekend - in Rust.
+
+[_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) - implemented in Rust.
 
 Progressing.

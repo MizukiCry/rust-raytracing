@@ -1,18 +1,25 @@
 use crate::utils::*;
+
+#[derive(Clone)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
+    pub material: Rc<Box<dyn Material>>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new(center: Vec3, radius: f64, material: Rc<Box<dyn Material>>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
 impl Default for Sphere {
     fn default() -> Self {
-        Self::new(Vec3::default(), f64::default())
+        Self::new(Vec3::default(), f64::default(), Rc::new(defaule_material()))
     }
 }
 
@@ -38,6 +45,7 @@ impl Hittable for Sphere {
 
         record.p = ray.at(root);
         record.t = root;
+        record.material = Rc::clone(&self.material);
         record.set_face_normal(ray, (record.p - self.center) / self.radius);
 
         true

@@ -1,20 +1,26 @@
-use std::rc::Rc;
-
 use crate::utils::*;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Vec3,
     pub t: f64,
+    pub material: Rc<Box<dyn Material>>,
     pub normal: Vec3,
     pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn new(p: Vec3, t: f64, normal: Vec3, front_face: bool) -> Self {
+    pub fn new(
+        p: Vec3,
+        t: f64,
+        material: Rc<Box<dyn Material>>,
+        normal: Vec3,
+        front_face: bool,
+    ) -> Self {
         Self {
             p,
             t,
+            material,
             normal,
             front_face,
         }
@@ -35,6 +41,7 @@ impl Default for HitRecord {
         Self::new(
             Vec3::default(),
             f64::default(),
+            Rc::new(defaule_material()),
             Vec3::default(),
             bool::default(),
         )
@@ -73,9 +80,9 @@ impl Hittable for HittableList {
     fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool {
         let mut hit_anything = false;
         let mut closest_t = ray_t.max;
-        let mut temp_record = HitRecord::default();
 
         for object in &self.objects {
+            let mut temp_record = HitRecord::default();
             if object.hit(ray, Interval::new(ray_t.min, closest_t), &mut temp_record) {
                 hit_anything = true;
                 closest_t = temp_record.t;

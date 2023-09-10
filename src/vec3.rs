@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use crate::utils::random_double;
+use crate::utils::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3 {
@@ -71,6 +71,10 @@ impl Vec3 {
             -unit
         }
     }
+
+    pub fn reflect(v: Vec3, n: Vec3) -> Self {
+        v - 2.0 * v.dot(n) * n
+    }
 }
 
 impl Default for Vec3 {
@@ -140,6 +144,22 @@ impl MulAssign<f64> for Vec3 {
         self.x *= rhs;
         self.y *= rhs;
         self.z *= rhs;
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Self::new(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
+    }
+}
+
+impl MulAssign<Vec3> for Vec3 {
+    fn mul_assign(&mut self, rhs: Vec3) {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+        self.z *= rhs.z;
     }
 }
 
