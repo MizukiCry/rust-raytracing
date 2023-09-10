@@ -11,6 +11,8 @@ fn main() {
     camera.camera_center = Vec3::new(-2.0, 2.0, 1.0);
     camera.lookat = Vec3::new(0.0, 0.0, -1.0);
     camera.vup = Vec3::new(0.0, 1.0, 0.0);
+    camera.focus_dist = 3.4;
+    camera.defocus_angle = 10.0;
     camera.initialize();
     // eprintln!("Camera: {:#?}", camera);
 

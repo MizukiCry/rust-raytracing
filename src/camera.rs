@@ -4,7 +4,8 @@ const MAX_COLOR: i32 = 255;
 
 /// Depends on following arguments:
 /// `aspect_ratio: f64`, `vfov: f64`, `samples_per_pixel: i32`, `max_bounce: i32`,
-/// `image_width: i32`, `camera_center: Vec3`, `lookat: Vec3`, `vup: Vec3`
+/// `image_width: i32`, `camera_center: Vec3`, `lookat: Vec3`, `vup: Vec3`,
+/// `focus_dist: f64`, `defocus_angle: f64`
 #[derive(Debug)]
 pub struct Camera {
     pub aspect_ratio: f64,
@@ -12,23 +13,23 @@ pub struct Camera {
     pub samples_per_pixel: i32,
     pub max_bounce: i32,
     pub image_width: i32,
-    pub image_height: i32,
     pub camera_center: Vec3,
     pub lookat: Vec3,
     pub vup: Vec3,
+    pub focus_dist: f64,
+    pub defocus_angle: f64,
+    image_height: i32,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
-    u: Vec3,
-    v: Vec3,
-    w: Vec3,
+    defocus_disk_u: Vec3,
+    defocus_disk_v: Vec3,
 }
 
 impl Camera {
     pub fn initialize(&mut self) {
         self.image_height = ((self.image_width as f64 / self.aspect_ratio) as i32).max(1);
-        let focal_length = (self.lookat - self.camera_center).length();
-        let viewport_height = 2.0 * f64::tan(degree_to_radian(self.vfov) / 2.0) * focal_length;
+        let viewport_height = 2.0 * f64::tan(degree_to_radian(self.vfov) / 2.0) * self.focus_dist;
         let viewport_width =
             viewport_height * (self.image_width as f64) / (self.image_height as f64);
 
@@ -42,8 +43,12 @@ impl Camera {
         self.pixel_delta_v = viewport_v / (self.image_height as f64);
 
         let viewport_upper_left =
-            self.camera_center - focal_length * w - viewport_u / 2.0 - viewport_v / 2.0;
+            self.camera_center - self.focus_dist * w - viewport_u / 2.0 - viewport_v / 2.0;
         self.pixel00 = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
+
+        let defocus_radius = self.focus_dist * f64::tan(degree_to_radian(self.defocus_angle / 2.0));
+        self.defocus_disk_u = u * defocus_radius;
+        self.defocus_disk_v = v * defocus_radius;
     }
 
     fn print_color(mut color: Vec3) {
@@ -84,8 +89,14 @@ impl Camera {
         let pixel_sample = pixel_center
             + random_double(-0.5, 0.5) * self.pixel_delta_u
             + random_double(-0.5, 0.5) * self.pixel_delta_v;
-        let ray_direction = pixel_sample - self.camera_center;
-        Ray::new(self.camera_center, ray_direction)
+        let ray_origin = if !self.defocus_angle.is_sign_positive() {
+            self.camera_center
+        } else {
+            self.camera_center
+                + Vec3::random_in_unit_disk() * (self.defocus_disk_u + self.defocus_disk_v)
+        };
+        let ray_direction = pixel_sample - ray_origin;
+        Ray::new(ray_origin, ray_direction)
     }
 
     fn ray_color(ray: &Ray, depth: i32, world: &HittableList) -> Vec3 {
@@ -117,16 +128,17 @@ impl Default for Camera {
             samples_per_pixel: 0,
             max_bounce: 0,
             image_width: 0,
-            image_height: 0,
             camera_center: Vec3::default(),
             lookat: Vec3::default(),
             vup: Vec3::default(),
+            focus_dist: 3.0,
+            defocus_angle: 0.0,
+            image_height: 0,
             pixel00: Vec3::default(),
             pixel_delta_u: Vec3::default(),
             pixel_delta_v: Vec3::default(),
-            u: Vec3::default(),
-            v: Vec3::default(),
-            w: Vec3::default(),
+            defocus_disk_u: Vec3::default(),
+            defocus_disk_v: Vec3::default(),
         }
     }
 }

@@ -63,6 +63,15 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let p = Self::new(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn random_on_hemisphere(normal: Self) -> Self {
         let unit = Self::random_unit();
         if unit.dot(normal).is_sign_positive() {
