@@ -11,7 +11,7 @@ pub trait Material {
 }
 
 pub fn defaule_material() -> Box<dyn Material> {
-    Box::new(Lambertian::default())
+    Box::<Lambertian>::default()
 }
 
 pub struct Lambertian {

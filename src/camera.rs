@@ -2,51 +2,48 @@ use crate::utils::*;
 
 const MAX_COLOR: i32 = 255;
 
+/// Depends on following arguments:
+/// `aspect_ratio: f64`, `vfov: f64`, `samples_per_pixel: i32`, `max_bounce: i32`,
+/// `image_width: i32`, `camera_center: Vec3`, `lookat: Vec3`, `vup: Vec3`
+#[derive(Debug)]
 pub struct Camera {
     pub aspect_ratio: f64,
+    pub vfov: f64,
     pub samples_per_pixel: i32,
     pub max_bounce: i32,
     pub image_width: i32,
     pub image_height: i32,
-    camera_center: Vec3,
+    pub camera_center: Vec3,
+    pub lookat: Vec3,
+    pub vup: Vec3,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,
 }
 
 impl Camera {
-    pub fn new(
-        aspect_ratio: f64,
-        samples_per_pixel: i32,
-        max_bounce: i32,
-        image_width: i32,
-    ) -> Self {
-        let image_height = ((image_width as f64 / aspect_ratio) as i32).max(1);
-        let viewport_height = 2.0;
-        let viewport_width = viewport_height * (image_width as f64) / (image_height as f64);
-        let focal_length = 1.0;
-        let camera_center = Vec3::new(0.0, 0.0, 0.0);
+    pub fn initialize(&mut self) {
+        self.image_height = ((self.image_width as f64 / self.aspect_ratio) as i32).max(1);
+        let focal_length = (self.lookat - self.camera_center).length();
+        let viewport_height = 2.0 * f64::tan(degree_to_radian(self.vfov) / 2.0) * focal_length;
+        let viewport_width =
+            viewport_height * (self.image_width as f64) / (self.image_height as f64);
 
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
-        let pixel_delta_u = viewport_u / (image_width as f64);
-        let pixel_delta_v = viewport_v / (image_height as f64);
+        let w = (self.camera_center - self.lookat).unit();
+        let u = self.vup.cross(w).unit();
+        let v = w.cross(u);
+
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height * -v;
+        self.pixel_delta_u = viewport_u / (self.image_width as f64);
+        self.pixel_delta_v = viewport_v / (self.image_height as f64);
 
         let viewport_upper_left =
-            camera_center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
-        let pixel00 = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
-
-        Self {
-            aspect_ratio,
-            samples_per_pixel,
-            max_bounce,
-            image_width,
-            image_height,
-            camera_center,
-            pixel00,
-            pixel_delta_u,
-            pixel_delta_v,
-        }
+            self.camera_center - focal_length * w - viewport_u / 2.0 - viewport_v / 2.0;
+        self.pixel00 = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
     fn print_color(mut color: Vec3) {
@@ -74,7 +71,7 @@ impl Camera {
                 for _ in 0..self.samples_per_pixel {
                     color += Self::ray_color(&self.get_random_ray(i, j), self.max_bounce, world);
                 }
-                color = color / (self.samples_per_pixel as f64);
+                color /= self.samples_per_pixel as f64;
                 Self::print_color(color);
             }
         }
@@ -89,28 +86,6 @@ impl Camera {
             + random_double(-0.5, 0.5) * self.pixel_delta_v;
         let ray_direction = pixel_sample - self.camera_center;
         Ray::new(self.camera_center, ray_direction)
-    }
-
-    /// Initializes according to aspect_ratio and image_width.
-    #[allow(dead_code)]
-    fn initialize(&mut self) {
-        self.image_height = ((self.image_width as f64 / self.aspect_ratio) as i32).max(1);
-        let viewport_height = 2.0;
-        let viewport_width =
-            viewport_height * (self.image_width as f64) / (self.image_height as f64);
-        let focal_length = 1.0;
-        self.camera_center = Vec3::new(0.0, 0.0, 0.0);
-
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
-        self.pixel_delta_u = viewport_u / (self.image_width as f64);
-        self.pixel_delta_v = viewport_v / (self.image_height as f64);
-
-        let viewport_upper_left = self.camera_center
-            - Vec3::new(0.0, 0.0, focal_length)
-            - viewport_u / 2.0
-            - viewport_v / 2.0;
-        self.pixel00 = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
     fn ray_color(ray: &Ray, depth: i32, world: &HittableList) -> Vec3 {
@@ -136,6 +111,22 @@ impl Camera {
 
 impl Default for Camera {
     fn default() -> Self {
-        Self::new(1.0, 5, 5, 100)
+        Self {
+            aspect_ratio: 0.0,
+            vfov: 0.0,
+            samples_per_pixel: 0,
+            max_bounce: 0,
+            image_width: 0,
+            image_height: 0,
+            camera_center: Vec3::default(),
+            lookat: Vec3::default(),
+            vup: Vec3::default(),
+            pixel00: Vec3::default(),
+            pixel_delta_u: Vec3::default(),
+            pixel_delta_v: Vec3::default(),
+            u: Vec3::default(),
+            v: Vec3::default(),
+            w: Vec3::default(),
+        }
     }
 }

@@ -2,7 +2,18 @@
 use rust_raytracing::utils::*;
 
 fn main() {
-    let mut camera = Camera::new(16.0 / 9.0, 50, 100, 500);
+    let mut camera = Camera::default();
+    camera.aspect_ratio = 16.0 / 9.0;
+    camera.vfov = 20.0;
+    camera.samples_per_pixel = 100;
+    camera.max_bounce = 50;
+    camera.image_width = 500;
+    camera.camera_center = Vec3::new(-2.0, 2.0, 1.0);
+    camera.lookat = Vec3::new(0.0, 0.0, -1.0);
+    camera.vup = Vec3::new(0.0, 1.0, 0.0);
+    camera.initialize();
+    // eprintln!("Camera: {:#?}", camera);
+
     let mut world = HittableList::default();
 
     let material_ground: Rc<Box<dyn Material>> =
