@@ -75,6 +75,13 @@ impl Vec3 {
     pub fn reflect(v: Vec3, n: Vec3) -> Self {
         v - 2.0 * v.dot(n) * n
     }
+
+    pub fn refract(uv: Vec3, n: Vec3, eta: f64) -> Vec3 {
+        let cos_theta = (-uv.dot(n)).min(1.0);
+        let r_out_perp = eta * (uv + cos_theta * n);
+        let r_out_para = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * n;
+        r_out_perp + r_out_para
+    }
 }
 
 impl Default for Vec3 {

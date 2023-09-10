@@ -82,3 +82,48 @@ impl Material for Metal {
         scattered.direction.dot(record.normal).is_sign_positive()
     }
 }
+
+pub struct Dielectric {
+    pub ir: f64,
+}
+
+impl Dielectric {
+    pub fn new(ir: f64) -> Self {
+        Self { ir }
+    }
+}
+
+impl Default for Dielectric {
+    fn default() -> Self {
+        Self::new(1.0)
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(
+        &self,
+        ray: &Ray,
+        record: &HitRecord,
+        attenuation: &mut Vec3,
+        scattered: &mut Ray,
+    ) -> bool {
+        *attenuation = Vec3::new(1.0, 1.0, 1.0);
+
+        let refraction_ratio = if record.front_face {
+            1.0 / self.ir
+        } else {
+            self.ir
+        };
+        let unit_direction = ray.direction.unit();
+        let cos_theta = (-unit_direction.dot(record.normal)).min(1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        let direction = if refraction_ratio * sin_theta > 1.0 {
+            Vec3::reflect(unit_direction, record.normal)
+        } else {
+            Vec3::refract(unit_direction, record.normal, refraction_ratio)
+        };
+        *scattered = Ray::new(record.p, direction);
+        true
+    }
+}
