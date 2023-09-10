@@ -91,6 +91,12 @@ impl Dielectric {
     pub fn new(ir: f64) -> Self {
         Self { ir }
     }
+
+    fn reflectance(cos: f64, ridx: f64) -> f64 {
+        let r0 = (1.0 - ridx) / (1.0 + ridx);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
+    }
 }
 
 impl Default for Dielectric {
@@ -118,7 +124,9 @@ impl Material for Dielectric {
         let cos_theta = (-unit_direction.dot(record.normal)).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
-        let direction = if refraction_ratio * sin_theta > 1.0 {
+        let direction = if refraction_ratio * sin_theta > 1.0
+            || Self::reflectance(cos_theta, refraction_ratio) > random()
+        {
             Vec3::reflect(unit_direction, record.normal)
         } else {
             Vec3::refract(unit_direction, record.normal, refraction_ratio)
