@@ -49,6 +49,18 @@ impl Camera {
         }
     }
 
+    fn print_color(mut color: Vec3) {
+        // Convert linear space to gamma space.
+        color = Vec3::new(color.x.sqrt(), color.y.sqrt(), color.z.sqrt());
+        color *= MAX_COLOR as f64 + 1.0;
+        println!(
+            "{} {} {}",
+            (color.x as i32).clamp(0, MAX_COLOR),
+            (color.y as i32).clamp(0, MAX_COLOR),
+            (color.z as i32).clamp(0, MAX_COLOR)
+        );
+    }
+
     pub fn render(&mut self, world: &HittableList) {
         println!(
             "P3\n{} {}\n{}",
@@ -62,14 +74,8 @@ impl Camera {
                 for _ in 0..self.samples_per_pixel {
                     color += Self::ray_color(&self.get_random_ray(i, j), self.max_bounce, world);
                 }
-
-                color = color / (self.samples_per_pixel as f64) * (MAX_COLOR as f64 + 1.0);
-                println!(
-                    "{} {} {}",
-                    (color.x as i32).clamp(0, MAX_COLOR),
-                    (color.y as i32).clamp(0, MAX_COLOR),
-                    (color.z as i32).clamp(0, MAX_COLOR)
-                );
+                color = color / (self.samples_per_pixel as f64);
+                Self::print_color(color);
             }
         }
         eprintln!("Done. [{} lines]", self.image_height);
@@ -112,8 +118,8 @@ impl Camera {
             return Vec3::default();
         }
         let mut record = HitRecord::default();
-        if world.hit(ray, Interval::new(0.0, f64::INFINITY), &mut record) {
-            let direction = Vec3::random_on_hemisphere(record.normal);
+        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
+            let direction = record.normal + Vec3::random_unit();
             return 0.5 * Self::ray_color(&Ray::new(record.p, direction), depth - 1, world);
         }
         let a = 0.5 * (ray.direction.unit().y + 1.0);
