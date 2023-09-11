@@ -5,9 +5,9 @@ fn main() {
     let mut camera = Camera::default();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.vfov = 20.0;
-    camera.samples_per_pixel = 20;
+    camera.samples_per_pixel = 10;
     camera.max_bounce = 5;
-    camera.image_width = 1280;
+    camera.image_width = 480;
     camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
     camera.lookat = Vec3::new(0.0, 0.0, 0.0);
     camera.vup = Vec3::new(0.0, 1.0, 0.0);
@@ -44,7 +44,16 @@ fn main() {
                     ))),
                     _ => Rc::new(Box::new(Dielectric::new(1.5))),
                 };
-                world.add(Rc::new(Box::new(Sphere::new(center, 0.2, sphere_material))));
+                if choose_material < 0.8 {
+                    world.add(Rc::new(Box::new(Sphere::new_moving(
+                        center,
+                        center + Vec3::new(0.0, random_range(0.0, 0.5), 0.0),
+                        0.2,
+                        sphere_material,
+                    ))));
+                } else {
+                    world.add(Rc::new(Box::new(Sphere::new(center, 0.2, sphere_material))));
+                }
             }
         }
     }

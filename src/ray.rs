@@ -4,11 +4,16 @@ use crate::vec3::Vec3;
 pub struct Ray {
     pub origin: Vec3,
     pub direction: Vec3,
+    pub time: f64,
 }
 
 impl Ray {
-    pub fn new(origin: Vec3, direction: Vec3) -> Self {
-        Self { origin, direction }
+    pub fn new(origin: Vec3, direction: Vec3, time: f64) -> Self {
+        Self {
+            origin,
+            direction,
+            time,
+        }
     }
 
     pub fn at(&self, t: f64) -> Vec3 {
@@ -18,7 +23,7 @@ impl Ray {
 
 impl Default for Ray {
     fn default() -> Self {
-        Self::new(Vec3::default(), Vec3::default())
+        Self::new(Vec3::default(), Vec3::default(), f64::default())
     }
 }
 
@@ -29,7 +34,7 @@ mod tests {
     use super::*;
     #[test]
     fn basic_test() {
-        let r = Ray::new(Vec3::new(1.0, 1.0, 1.0), Vec3::new(1.0, 0.0, 0.0));
+        let r = Ray::new(Vec3::new(1.0, 1.0, 1.0), Vec3::new(1.0, 0.0, 0.0), 0.0);
         assert!(equal_vec3(r.at(2.0), Vec3::new(3.0, 1.0, 1.0)));
     }
 }

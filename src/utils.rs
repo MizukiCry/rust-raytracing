@@ -1,7 +1,7 @@
 pub use crate::camera::Camera;
 pub use crate::hittable::{HitRecord, Hittable, HittableList};
 pub use crate::interval::Interval;
-pub use crate::material::{defaule_material, Dielectric, Lambertian, Material, Metal};
+pub use crate::material::{default_material, Dielectric, Lambertian, Material, Metal};
 pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
 pub use crate::vec3::Vec3;
@@ -27,7 +27,7 @@ pub fn degree_to_radian(degree: f64) -> f64 {
 }
 
 pub fn random_u64() -> u64 {
-    static mut X: u64 = 0721;
+    static mut X: u64 = 721;
     unsafe {
         X ^= X >> 12;
         X ^= X << 25;
@@ -36,6 +36,7 @@ pub fn random_u64() -> u64 {
     }
 }
 
+/// Returns a random `f64` number in [0, 1]
 pub fn random_f64() -> f64 {
     random_u64() as f64 / u64::MAX as f64
 }

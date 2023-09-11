@@ -10,7 +10,7 @@ pub trait Material {
     ) -> bool;
 }
 
-pub fn defaule_material() -> Box<dyn Material> {
+pub fn default_material() -> Box<dyn Material> {
     Box::<Lambertian>::default()
 }
 
@@ -33,7 +33,7 @@ impl Default for Lambertian {
 impl Material for Lambertian {
     fn scatter(
         &self,
-        _ray: &Ray,
+        ray: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
@@ -42,7 +42,7 @@ impl Material for Lambertian {
         if is_zero_vec3(direction) {
             direction = record.normal;
         }
-        *scattered = Ray::new(record.p, direction);
+        *scattered = Ray::new(record.p, direction, ray.time);
         *attenuation = self.albedo;
         true
     }
@@ -77,7 +77,11 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let reflected = Vec3::reflect(ray.direction.unit(), record.normal);
-        *scattered = Ray::new(record.p, reflected + self.fuzz * Vec3::random_unit());
+        *scattered = Ray::new(
+            record.p,
+            reflected + self.fuzz * Vec3::random_unit(),
+            ray.time,
+        );
         *attenuation = self.albedo;
         scattered.direction.dot(record.normal).is_sign_positive()
     }
@@ -131,7 +135,7 @@ impl Material for Dielectric {
         } else {
             Vec3::refract(unit_direction, record.normal, refraction_ratio)
         };
-        *scattered = Ray::new(record.p, direction);
+        *scattered = Ray::new(record.p, direction, ray.time);
         true
     }
 }

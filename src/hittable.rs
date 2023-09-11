@@ -41,7 +41,7 @@ impl Default for HitRecord {
         Self::new(
             Vec3::default(),
             f64::default(),
-            Rc::new(defaule_material()),
+            Rc::new(default_material()),
             Vec3::default(),
             bool::default(),
         )

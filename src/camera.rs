@@ -96,7 +96,8 @@ impl Camera {
                 + Vec3::random_in_unit_disk() * (self.defocus_disk_u + self.defocus_disk_v)
         };
         let ray_direction = pixel_sample - ray_origin;
-        Ray::new(ray_origin, ray_direction)
+        let ray_time = random_f64();
+        Ray::new(ray_origin, ray_direction, ray_time)
     }
 
     fn ray_color(ray: &Ray, depth: i32, world: &HittableList) -> Vec3 {
