@@ -1,55 +1,73 @@
-// cargo run | out-file output.ppm -encoding ascii
+// cargo run --release | out-file output.ppm -encoding ascii
 use rust_raytracing::utils::*;
 
 fn main() {
     let mut camera = Camera::default();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.vfov = 20.0;
-    camera.samples_per_pixel = 100;
-    camera.max_bounce = 50;
-    camera.image_width = 500;
-    camera.camera_center = Vec3::new(-2.0, 2.0, 1.0);
-    camera.lookat = Vec3::new(0.0, 0.0, -1.0);
+    camera.samples_per_pixel = 500;
+    camera.max_bounce = 10;
+    camera.image_width = 1280;
+    camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
+    camera.lookat = Vec3::new(0.0, 0.0, 0.0);
     camera.vup = Vec3::new(0.0, 1.0, 0.0);
-    camera.focus_dist = 3.4;
-    camera.defocus_angle = 10.0;
+    camera.focus_dist = 10.0;
+    camera.defocus_angle = 0.6;
     camera.initialize();
-    // eprintln!("Camera: {:#?}", camera);
 
     let mut world = HittableList::default();
 
-    let material_ground: Rc<Box<dyn Material>> =
-        Rc::new(Box::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))));
-    let material_center: Rc<Box<dyn Material>> =
-        Rc::new(Box::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5))));
-    let material_left: Rc<Box<dyn Material>> = Rc::new(Box::new(Dielectric::new(1.5)));
-    let material_right: Rc<Box<dyn Material>> =
-        Rc::new(Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0)));
+    let ground_material: Rc<Box<dyn Material>> =
+        Rc::new(Box::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))));
+    world.add(Rc::new(Box::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        ground_material,
+    ))));
 
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_material = random::<f64>();
+            let center = Vec3::new(
+                a as f64 + 0.9 * random::<f64>(),
+                0.2,
+                b as f64 + 0.9 * random::<f64>(),
+            );
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                let sphere_material: Rc<Box<dyn Material>> = match choose_material {
+                    x if x < 0.8 => {
+                        Rc::new(Box::new(Lambertian::new(Vec3::random() * Vec3::random())))
+                    }
+                    x if x < 0.95 => Rc::new(Box::new(Metal::new(
+                        Vec3::random_range(0.5, 1.0),
+                        random_double(0.0, 0.5),
+                    ))),
+                    _ => Rc::new(Box::new(Dielectric::new(1.5))),
+                };
+                world.add(Rc::new(Box::new(Sphere::new(center, 0.2, sphere_material))));
+            }
+        }
+    }
+
+    let material1: Rc<Box<dyn Material>> = Rc::new(Box::new(Dielectric::new(1.5)));
     world.add(Rc::new(Box::new(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        Rc::clone(&material_ground),
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        material1,
     ))));
+    let material2: Rc<Box<dyn Material>> =
+        Rc::new(Box::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))));
     world.add(Rc::new(Box::new(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
-        Rc::clone(&material_center),
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        material2,
     ))));
+    let material3: Rc<Box<dyn Material>> =
+        Rc::new(Box::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)));
     world.add(Rc::new(Box::new(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        0.5,
-        Rc::clone(&material_left),
-    ))));
-    world.add(Rc::new(Box::new(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        -0.4,
-        Rc::clone(&material_left),
-    ))));
-    world.add(Rc::new(Box::new(Sphere::new(
-        Vec3::new(1.0, 0.0, -1.0),
-        0.5,
-        Rc::clone(&material_right),
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        material3,
     ))));
 
     camera.render(&world);
