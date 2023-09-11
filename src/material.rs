@@ -125,7 +125,7 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let direction = if refraction_ratio * sin_theta > 1.0
-            || Self::reflectance(cos_theta, refraction_ratio) > random()
+            || Self::reflectance(cos_theta, refraction_ratio) > random_f64()
         {
             Vec3::reflect(unit_direction, record.normal)
         } else {

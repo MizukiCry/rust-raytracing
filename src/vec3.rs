@@ -39,18 +39,14 @@ impl Vec3 {
     }
 
     pub fn random() -> Self {
-        Self::new(
-            random_double(0.0, 1.0),
-            random_double(0.0, 1.0),
-            random_double(0.0, 1.0),
-        )
+        Self::new(random_f64(), random_f64(), random_f64())
     }
 
     pub fn random_range(min: f64, max: f64) -> Self {
         Self::new(
-            random_double(min, max),
-            random_double(min, max),
-            random_double(min, max),
+            random_range(min, max),
+            random_range(min, max),
+            random_range(min, max),
         )
     }
 
@@ -65,7 +61,7 @@ impl Vec3 {
 
     pub fn random_in_unit_disk() -> Self {
         loop {
-            let p = Self::new(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0);
+            let p = Self::new(random_range(-1.0, 1.0), random_range(-1.0, 1.0), 0.0);
             if p.length_squared() < 1.0 {
                 return p;
             }

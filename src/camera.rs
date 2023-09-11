@@ -87,8 +87,8 @@ impl Camera {
         let pixel_center =
             self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
         let pixel_sample = pixel_center
-            + random_double(-0.5, 0.5) * self.pixel_delta_u
-            + random_double(-0.5, 0.5) * self.pixel_delta_v;
+            + random_range(-0.5, 0.5) * self.pixel_delta_u
+            + random_range(-0.5, 0.5) * self.pixel_delta_v;
         let ray_origin = if !self.defocus_angle.is_sign_positive() {
             self.camera_center
         } else {

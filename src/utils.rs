@@ -8,8 +8,6 @@ pub use crate::vec3::Vec3;
 
 pub use std::rc::Rc;
 
-pub use rand::{random, thread_rng, Rng};
-
 const EPS: f64 = 1e-8;
 
 pub fn equal(a: f64, b: f64) -> bool {
@@ -28,6 +26,20 @@ pub fn degree_to_radian(degree: f64) -> f64 {
     degree * std::f64::consts::PI / 180.0
 }
 
-pub fn random_double(min: f64, max: f64) -> f64 {
-    min + (max - min) * random::<f64>()
+pub fn random_u64() -> u64 {
+    static mut X: u64 = 0721;
+    unsafe {
+        X ^= X >> 12;
+        X ^= X << 25;
+        X ^= X >> 27;
+        X.wrapping_mul(0x2545F4914F6CDD1D)
+    }
+}
+
+pub fn random_f64() -> f64 {
+    random_u64() as f64 / u64::MAX as f64
+}
+
+pub fn random_range(min: f64, max: f64) -> f64 {
+    min + (max - min) * random_f64()
 }

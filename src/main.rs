@@ -5,8 +5,8 @@ fn main() {
     let mut camera = Camera::default();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.vfov = 20.0;
-    camera.samples_per_pixel = 500;
-    camera.max_bounce = 10;
+    camera.samples_per_pixel = 20;
+    camera.max_bounce = 5;
     camera.image_width = 1280;
     camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
     camera.lookat = Vec3::new(0.0, 0.0, 0.0);
@@ -27,11 +27,11 @@ fn main() {
 
     for a in -11..11 {
         for b in -11..11 {
-            let choose_material = random::<f64>();
+            let choose_material = random_f64();
             let center = Vec3::new(
-                a as f64 + 0.9 * random::<f64>(),
+                a as f64 + 0.9 * random_f64(),
                 0.2,
-                b as f64 + 0.9 * random::<f64>(),
+                b as f64 + 0.9 * random_f64(),
             );
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                 let sphere_material: Rc<Box<dyn Material>> = match choose_material {
@@ -40,7 +40,7 @@ fn main() {
                     }
                     x if x < 0.95 => Rc::new(Box::new(Metal::new(
                         Vec3::random_range(0.5, 1.0),
-                        random_double(0.0, 0.5),
+                        random_range(0.0, 0.5),
                     ))),
                     _ => Rc::new(Box::new(Dielectric::new(1.5))),
                 };
