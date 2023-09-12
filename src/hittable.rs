@@ -82,11 +82,9 @@ impl Hittable for HittableList {
         let mut closest_t = ray_t.max;
 
         for object in &self.objects {
-            let mut temp_record = HitRecord::default();
-            if object.hit(ray, Interval::new(ray_t.min, closest_t), &mut temp_record) {
+            if object.hit(ray, Interval::new(ray_t.min, closest_t), record) {
                 hit_anything = true;
-                closest_t = temp_record.t;
-                *record = temp_record;
+                closest_t = record.t;
             }
         }
 
