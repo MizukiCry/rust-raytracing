@@ -4,7 +4,7 @@ use crate::utils::*;
 pub struct HitRecord {
     pub p: Vec3,
     pub t: f64,
-    pub material: Rc<Box<dyn Material>>,
+    pub material: Rc<dyn Material>,
     pub normal: Vec3,
     pub front_face: bool,
 }
@@ -13,7 +13,7 @@ impl HitRecord {
     pub fn new(
         p: Vec3,
         t: f64,
-        material: Rc<Box<dyn Material>>,
+        material: Rc<dyn Material>,
         normal: Vec3,
         front_face: bool,
     ) -> Self {
@@ -41,7 +41,7 @@ impl Default for HitRecord {
         Self::new(
             Vec3::default(),
             f64::default(),
-            Rc::new(default_material()),
+            Rc::new(Lambertian::default()),
             Vec3::default(),
             bool::default(),
         )
@@ -53,11 +53,11 @@ pub trait Hittable {
 }
 
 pub struct HittableList {
-    objects: Vec<Rc<Box<dyn Hittable>>>,
+    objects: Vec<Rc<dyn Hittable>>,
 }
 
 impl HittableList {
-    pub fn new(objects: Vec<Rc<Box<dyn Hittable>>>) -> Self {
+    pub fn new(objects: Vec<Rc<dyn Hittable>>) -> Self {
         Self { objects }
     }
 
@@ -65,7 +65,7 @@ impl HittableList {
         self.objects.clear()
     }
 
-    pub fn add(&mut self, object: Rc<Box<dyn Hittable>>) {
+    pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.objects.push(object);
     }
 }

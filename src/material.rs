@@ -10,10 +10,6 @@ pub trait Material {
     ) -> bool;
 }
 
-pub fn default_material() -> Box<dyn Material> {
-    Box::<Lambertian>::default()
-}
-
 pub struct Lambertian {
     pub albedo: Vec3,
 }

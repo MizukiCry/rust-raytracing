@@ -4,13 +4,13 @@ use crate::utils::*;
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub material: Rc<Box<dyn Material>>,
+    pub material: Rc<dyn Material>,
     pub is_moving: bool,
     pub moving_direction: Vec3,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64, material: Rc<Box<dyn Material>>) -> Self {
+    pub fn new(center: Vec3, radius: f64, material: Rc<dyn Material>) -> Self {
         Self {
             center,
             radius,
@@ -24,7 +24,7 @@ impl Sphere {
         center1: Vec3,
         center2: Vec3,
         radius: f64,
-        material: Rc<Box<dyn Material>>,
+        material: Rc<dyn Material>,
     ) -> Self {
         Self {
             center: center1,
@@ -46,7 +46,7 @@ impl Sphere {
 
 impl Default for Sphere {
     fn default() -> Self {
-        Self::new(Vec3::default(), f64::default(), Rc::new(default_material()))
+        Self::new(Vec3::default(), f64::default(), Rc::new(Lambertian::default()))
     }
 }
 

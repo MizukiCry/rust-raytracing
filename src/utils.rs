@@ -1,7 +1,7 @@
 pub use crate::camera::Camera;
 pub use crate::hittable::{HitRecord, Hittable, HittableList};
 pub use crate::interval::Interval;
-pub use crate::material::{default_material, Dielectric, Lambertian, Material, Metal};
+pub use crate::material::{Dielectric, Lambertian, Material, Metal};
 pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
 pub use crate::vec3::Vec3;
