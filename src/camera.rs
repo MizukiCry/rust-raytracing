@@ -105,7 +105,7 @@ impl Camera {
             return Vec3::default();
         }
         let mut record = HitRecord::default();
-        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
+        if world.hit(ray, 0.001, f64::INFINITY, &mut record) {
             let mut scattered = Ray::default();
             let mut attenuation = Vec3::default();
             if record

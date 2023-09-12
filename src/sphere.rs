@@ -46,12 +46,16 @@ impl Sphere {
 
 impl Default for Sphere {
     fn default() -> Self {
-        Self::new(Vec3::default(), f64::default(), Rc::new(Lambertian::default()))
+        Self::new(
+            Vec3::default(),
+            f64::default(),
+            Rc::new(Lambertian::default()),
+        )
     }
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
         let center = self.center(ray.time);
         let oc = ray.origin - center;
         let a = ray.direction.length_squared();
@@ -64,9 +68,9 @@ impl Hittable for Sphere {
 
         let sqrtd = discriminant.sqrt();
         let mut root = (-h - sqrtd) / a;
-        if !ray_t.surrounds(root) {
+        if root <= t_min || root >= t_max {
             root = (-h + sqrtd) / a;
-            if !ray_t.surrounds(root) {
+            if root <= t_min || root >= t_max {
                 return false;
             }
         }

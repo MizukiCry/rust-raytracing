@@ -49,7 +49,7 @@ impl Default for HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool;
 }
 
 pub struct HittableList {
@@ -77,12 +77,12 @@ impl Default for HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
         let mut hit_anything = false;
-        let mut closest_t = ray_t.max;
+        let mut closest_t = t_max;
 
         for object in &self.objects {
-            if object.hit(ray, Interval::new(ray_t.min, closest_t), record) {
+            if object.hit(ray, t_min, closest_t, record) {
                 hit_anything = true;
                 closest_t = record.t;
             }
