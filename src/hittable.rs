@@ -1,4 +1,13 @@
-use crate::utils::*;
+use crate::*;
+
+mod sphere;
+pub use sphere::*;
+
+mod hittablelist;
+pub use hittablelist::*;
+
+mod bvh;
+pub use bvh::*;
 
 #[derive(Clone)]
 pub struct HitRecord {
@@ -49,45 +58,7 @@ impl Default for HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool;
-}
+    fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool;
 
-pub struct HittableList {
-    objects: Vec<Rc<dyn Hittable>>,
-}
-
-impl HittableList {
-    pub fn new(objects: Vec<Rc<dyn Hittable>>) -> Self {
-        Self { objects }
-    }
-
-    pub fn clear(&mut self) {
-        self.objects.clear()
-    }
-
-    pub fn add(&mut self, object: Rc<dyn Hittable>) {
-        self.objects.push(object);
-    }
-}
-
-impl Default for HittableList {
-    fn default() -> Self {
-        Self::new(Vec::default())
-    }
-}
-
-impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
-        let mut hit_anything = false;
-        let mut closest_t = t_max;
-
-        for object in &self.objects {
-            if object.hit(ray, t_min, closest_t, record) {
-                hit_anything = true;
-                closest_t = record.t;
-            }
-        }
-
-        hit_anything
-    }
+    fn bounding_box(&self) -> &Aabb;
 }

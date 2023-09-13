@@ -1,10 +1,4 @@
-pub use crate::aabb::*;
-pub use crate::camera::*;
-pub use crate::hittable::*;
-pub use crate::material::*;
-pub use crate::ray::*;
-pub use crate::sphere::*;
-pub use crate::vec3::*;
+pub use crate::*;
 
 pub use std::rc::Rc;
 
@@ -42,6 +36,12 @@ pub fn random_f64() -> f64 {
     random_u64() as f64 / u64::MAX as f64
 }
 
-pub fn random_range(min: f64, max: f64) -> f64 {
+/// Returns a random `f64` number in [min, max]
+pub fn random_range_f64(min: f64, max: f64) -> f64 {
     min + (max - min) * random_f64()
+}
+
+/// Returns a random `i32` number in [min, max]
+pub fn random_range_i32(min: i32, max: i32) -> i32 {
+    min + (random_u64() % (max - min + 1) as u64) as i32
 }

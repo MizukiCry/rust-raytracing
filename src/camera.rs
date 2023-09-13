@@ -1,4 +1,4 @@
-use crate::utils::*;
+use crate::*;
 
 const MAX_COLOR: i32 = 255;
 
@@ -63,7 +63,7 @@ impl Camera {
         );
     }
 
-    pub fn render(&mut self, world: &HittableList) {
+    pub fn render(&mut self, world: &impl Hittable) {
         println!(
             "P3\n{} {}\n{}",
             self.image_width, self.image_height, MAX_COLOR
@@ -87,8 +87,8 @@ impl Camera {
         let pixel_center =
             self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
         let pixel_sample = pixel_center
-            + random_range(-0.5, 0.5) * self.pixel_delta_u
-            + random_range(-0.5, 0.5) * self.pixel_delta_v;
+            + random_range_f64(-0.5, 0.5) * self.pixel_delta_u
+            + random_range_f64(-0.5, 0.5) * self.pixel_delta_v;
         let ray_origin = if !self.defocus_angle.is_sign_positive() {
             self.camera_center
         } else {
@@ -100,12 +100,12 @@ impl Camera {
         Ray::new(ray_origin, ray_direction, ray_time)
     }
 
-    fn ray_color(ray: &Ray, depth: i32, world: &HittableList) -> Vec3 {
+    fn ray_color(ray: &Ray, depth: i32, world: &impl Hittable) -> Vec3 {
         if depth == 0 {
             return Vec3::default();
         }
         let mut record = HitRecord::default();
-        if world.hit(ray, 0.001, f64::INFINITY, &mut record) {
+        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
             let mut scattered = Ray::default();
             let mut attenuation = Vec3::default();
             if record

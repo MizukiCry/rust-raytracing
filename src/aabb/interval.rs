@@ -1,3 +1,4 @@
+#[derive(Clone, Copy)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -40,15 +41,28 @@ impl Interval {
         Self::new(self.min - delta / 2.0, self.max + delta / 2.0)
     }
 
-    pub fn overlap(&self, x: &Interval) -> Self {
+    pub fn intersection(&self, x: &Interval) -> Self {
         Self::new(self.min.max(x.min), self.max.min(x.max))
     }
 
-    pub fn overlaps(&mut self, x: &Interval) {
+    pub fn intersects(&mut self, x: &Interval) {
         if x.min > self.min {
             self.min = x.min;
         }
         if x.max < self.max {
+            self.max = x.max;
+        }
+    }
+
+    pub fn union(&self, x: &Interval) -> Self {
+        Self::new(self.min.min(x.min), self.max.max(x.max))
+    }
+
+    pub fn unions(&mut self, x: &Interval) {
+        if self.min > x.min {
+            self.min = x.min;
+        }
+        if self.max < x.max {
             self.max = x.max;
         }
     }

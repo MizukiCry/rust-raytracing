@@ -1,4 +1,4 @@
-use crate::utils::*;
+use crate::*;
 
 pub struct Lambertian {
     pub albedo: Vec3,

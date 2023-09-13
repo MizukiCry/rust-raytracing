@@ -1,12 +1,12 @@
-pub mod dielectric;
-pub mod lambertian;
-pub mod metal;
+mod dielectric;
+mod lambertian;
+mod metal;
 
 pub use dielectric::*;
 pub use lambertian::*;
 pub use metal::*;
 
-use crate::utils::*;
+use crate::*;
 
 pub trait Material {
     fn scatter(
@@ -17,3 +17,7 @@ pub trait Material {
         scattered: &mut Ray,
     ) -> bool;
 }
+
+// pub struct DefaultMaterial {}
+// impl Material for DefaultMaterial {}
+// pub static DEFAULT_MATERIAL: DefaultMaterial = DefaultMaterial {};

@@ -1,13 +1,14 @@
+// Windows Powershell:
 // cargo run --release | out-file output.ppm -encoding ascii
-use rust_raytracing::utils::*;
+use rust_raytracing::*;
 
 fn main() {
     let mut camera = Camera::default();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.vfov = 20.0;
-    camera.samples_per_pixel = 10;
+    camera.samples_per_pixel = 500;
     camera.max_bounce = 5;
-    camera.image_width = 480;
+    camera.image_width = 1280;
     camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
     camera.lookat = Vec3::new(0.0, 0.0, 0.0);
     camera.vup = Vec3::new(0.0, 1.0, 0.0);
@@ -37,20 +38,21 @@ fn main() {
                     x if x < 0.8 => Rc::new(Lambertian::new(Vec3::random() * Vec3::random())),
                     x if x < 0.95 => Rc::new(Metal::new(
                         Vec3::random_range(0.5, 1.0),
-                        random_range(0.0, 0.5),
+                        random_range_f64(0.0, 0.5),
                     )),
                     _ => Rc::new(Dielectric::new(1.5)),
                 };
                 if choose_material < 0.8 {
                     world.add(Rc::new(Sphere::new_moving(
                         center,
-                        center + Vec3::new(0.0, random_range(0.0, 0.5), 0.0),
+                        center + Vec3::new(0.0, random_range_f64(0.0, 0.5), 0.0),
                         0.2,
                         sphere_material,
                     )));
                 } else {
                     world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 }
+                // world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
             }
         }
     }
@@ -73,6 +75,8 @@ fn main() {
         1.0,
         material3,
     )));
+
+    let world = BvhNode::from(&mut world.objects);
 
     camera.render(&world);
 }

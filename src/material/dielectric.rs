@@ -1,4 +1,4 @@
-use crate::utils::*;
+use crate::*;
 
 pub struct Dielectric {
     pub ir: f64,
