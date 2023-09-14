@@ -58,7 +58,6 @@ impl Hittable for BvhNode {
             ray_t.max = record.t;
         }
         let hit_right = self.right.hit(ray, ray_t, record);
-
         hit_left || hit_right
     }
 

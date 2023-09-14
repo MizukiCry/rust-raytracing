@@ -1,18 +1,18 @@
 use crate::*;
 
 pub struct Lambertian {
-    pub albedo: Vec3,
+    pub albedo: Rc<dyn Texture>,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Vec3) -> Self {
+    pub fn new(albedo: Rc<dyn Texture>) -> Self {
         Self { albedo }
     }
 }
 
 impl Default for Lambertian {
     fn default() -> Self {
-        Self::new(Vec3::default())
+        Self::new(Rc::new(SolidColor::new(Vec3::default())))
     }
 }
 
@@ -29,7 +29,7 @@ impl Material for Lambertian {
             direction = record.normal;
         }
         *scattered = Ray::new(record.p, direction, ray.time);
-        *attenuation = self.albedo;
+        *attenuation = self.albedo.color(record.u, record.v, &record.p);
         true
     }
 }

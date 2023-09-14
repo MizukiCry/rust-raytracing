@@ -13,6 +13,8 @@ pub use bvh::*;
 pub struct HitRecord {
     pub p: Vec3,
     pub t: f64,
+    pub u: f64,
+    pub v: f64,
     pub material: Rc<dyn Material>,
     pub normal: Vec3,
     pub front_face: bool,
@@ -22,6 +24,8 @@ impl HitRecord {
     pub fn new(
         p: Vec3,
         t: f64,
+        u: f64,
+        v: f64,
         material: Rc<dyn Material>,
         normal: Vec3,
         front_face: bool,
@@ -29,6 +33,8 @@ impl HitRecord {
         Self {
             p,
             t,
+            u,
+            v,
             material,
             normal,
             front_face,
@@ -49,6 +55,8 @@ impl Default for HitRecord {
     fn default() -> Self {
         Self::new(
             Vec3::default(),
+            f64::default(),
+            f64::default(),
             f64::default(),
             Rc::new(Lambertian::default()),
             Vec3::default(),

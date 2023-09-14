@@ -1,7 +1,5 @@
 use crate::*;
 
-const MAX_COLOR: i32 = 255;
-
 /// Depends on following arguments:
 /// `aspect_ratio: f64`, `vfov: f64`, `samples_per_pixel: i32`, `max_bounce: i32`,
 /// `image_width: i32`, `camera_center: Vec3`, `lookat: Vec3`, `vup: Vec3`,
@@ -124,15 +122,15 @@ impl Camera {
 impl Default for Camera {
     fn default() -> Self {
         Self {
-            aspect_ratio: 0.0,
-            vfov: 0.0,
-            samples_per_pixel: 0,
-            max_bounce: 0,
-            image_width: 0,
+            aspect_ratio: 16.0 / 9.0,
+            vfov: 20.0,
+            samples_per_pixel: 10,
+            max_bounce: 5,
+            image_width: 480,
             camera_center: Vec3::default(),
-            lookat: Vec3::default(),
-            vup: Vec3::default(),
-            focus_dist: 3.0,
+            lookat: Vec3::new(0.0, 0.0, 1.0),
+            vup: Vec3::new(0.0, 1.0, 0.0),
+            focus_dist: 10.0,
             defocus_angle: 0.0,
             image_height: 0,
             pixel00: Vec3::default(),

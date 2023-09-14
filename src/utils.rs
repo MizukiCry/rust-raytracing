@@ -2,7 +2,9 @@ pub use crate::*;
 
 pub use std::rc::Rc;
 
-const EPS: f64 = 1e-8;
+pub use std::f64::consts::PI;
+pub const EPS: f64 = 1e-8;
+pub const MAX_COLOR: i32 = 255;
 
 pub fn equal(a: f64, b: f64) -> bool {
     (a - b).abs() < EPS

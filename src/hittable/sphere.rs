@@ -48,6 +48,13 @@ impl Sphere {
             self.center
         }
     }
+
+    pub fn get_sphere_uv(p: &Vec3) -> (f64, f64) {
+        (
+            (f64::atan2(-p.z, p.x) + PI) / (2.0 * PI),
+            f64::acos(-p.y) / PI,
+        )
+    }
 }
 
 impl Default for Sphere {
@@ -83,8 +90,10 @@ impl Hittable for Sphere {
 
         record.p = ray.at(root);
         record.t = root;
+        let outward_normal = (record.p - center) / self.radius;
+        (record.u, record.v) = Sphere::get_sphere_uv(&outward_normal);
         record.material = Rc::clone(&self.material);
-        record.set_face_normal(ray, (record.p - center) / self.radius);
+        record.set_face_normal(ray, outward_normal);
 
         true
     }
