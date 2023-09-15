@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use crate::*;
 
 /// Depends on following arguments:
@@ -68,7 +70,8 @@ impl Camera {
         );
 
         for i in 0..self.image_height {
-            eprintln!("Progressing... [{} / {}]", i + 1, self.image_height);
+            eprint!("\rProgressing... [{} / {}]", i + 1, self.image_height);
+            std::io::stderr().flush().unwrap();
             for j in 0..self.image_width {
                 let mut color = Vec3::default();
                 for _ in 0..self.samples_per_pixel {
@@ -78,7 +81,7 @@ impl Camera {
                 Self::print_color(color);
             }
         }
-        eprintln!("Done. [{} lines]", self.image_height);
+        eprintln!("\rDone. [{} lines]            ", self.image_height);
     }
 
     fn get_random_ray(&mut self, i: i32, j: i32) -> Ray {
@@ -110,6 +113,9 @@ impl Camera {
                 .material
                 .scatter(ray, &record, &mut attenuation, &mut scattered)
             {
+                // if depth == 10 && random_range_i32(0, 99) == 0 {
+                //     eprintln!("Hit {:?}", record.p);
+                // }
                 return attenuation * Self::ray_color(&scattered, depth - 1, world);
             }
             return Vec3::default();
@@ -124,11 +130,11 @@ impl Default for Camera {
         Self {
             aspect_ratio: 16.0 / 9.0,
             vfov: 20.0,
-            samples_per_pixel: 10,
-            max_bounce: 5,
+            samples_per_pixel: 50,
+            max_bounce: 10,
             image_width: 480,
-            camera_center: Vec3::default(),
-            lookat: Vec3::new(0.0, 0.0, 1.0),
+            camera_center: Vec3::new(0.0, 0.0, 1.0),
+            lookat: Vec3::default(),
             vup: Vec3::new(0.0, 1.0, 0.0),
             focus_dist: 10.0,
             defocus_angle: 0.0,

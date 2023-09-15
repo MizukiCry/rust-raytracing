@@ -3,22 +3,14 @@
 use rust_raytracing::*;
 
 fn main() {
-    let (mut camera, world) = earth();
+    let (mut camera, world) = two_perlin_spheres();
     camera.render(&world);
 }
 
 #[allow(dead_code)]
 fn random_spheres() -> (Camera, BvhNode) {
     let mut camera = Camera::default();
-    camera.aspect_ratio = 16.0 / 9.0;
-    camera.vfov = 20.0;
-    camera.samples_per_pixel = 10;
-    camera.max_bounce = 5;
-    camera.image_width = 480;
     camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
-    camera.lookat = Vec3::new(0.0, 0.0, 0.0);
-    camera.vup = Vec3::new(0.0, 1.0, 0.0);
-    camera.focus_dist = 10.0;
     camera.defocus_angle = 0.6;
     camera.initialize();
 
@@ -97,16 +89,7 @@ fn random_spheres() -> (Camera, BvhNode) {
 #[allow(dead_code)]
 fn two_spheres() -> (Camera, HittableList) {
     let mut camera = Camera::default();
-    camera.aspect_ratio = 16.0 / 9.0;
-    camera.vfov = 20.0;
-    camera.samples_per_pixel = 100;
-    camera.max_bounce = 50;
-    camera.image_width = 480;
     camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
-    camera.lookat = Vec3::new(0.0, 0.0, 0.0);
-    camera.vup = Vec3::new(0.0, 1.0, 0.0);
-    camera.focus_dist = 10.0;
-    camera.defocus_angle = 0.0;
     camera.initialize();
 
     let mut world = HittableList::default();
@@ -132,16 +115,7 @@ fn two_spheres() -> (Camera, HittableList) {
 #[allow(dead_code)]
 fn earth() -> (Camera, HittableList) {
     let mut camera = Camera::default();
-    camera.aspect_ratio = 16.0 / 9.0;
-    camera.vfov = 20.0;
-    camera.samples_per_pixel = 100;
-    camera.max_bounce = 10;
-    camera.image_width = 480;
     camera.camera_center = Vec3::new(0.0, 0.0, 12.0);
-    camera.lookat = Vec3::new(0.0, 0.0, 0.0);
-    camera.vup = Vec3::new(0.0, 1.0, 0.0);
-    camera.focus_dist = 10.0;
-    camera.defocus_angle = 0.0;
     camera.initialize();
 
     let mut world = HittableList::default();
@@ -152,6 +126,30 @@ fn earth() -> (Camera, HittableList) {
         Vec3::default(),
         2.0,
         Rc::clone(&earth_material) as Rc<dyn Material>,
+    )));
+
+    (camera, world)
+}
+
+#[allow(dead_code)]
+fn two_perlin_spheres() -> (Camera, HittableList) {
+    let mut camera = Camera::default();
+    camera.camera_center = Vec3::new(13.0, 2.0, 3.0);
+    camera.initialize();
+
+    let mut world = HittableList::default();
+
+    let material = Rc::new(Lambertian::new(Rc::new(NoiseTexture::new(4.0))));
+
+    world.add(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::clone(&material) as Rc<dyn Material>,
+    )));
+    world.add(Rc::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::clone(&material) as Rc<dyn Material>,
     )));
 
     (camera, world)
