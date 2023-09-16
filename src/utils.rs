@@ -1,6 +1,10 @@
-pub use crate::*;
-
 pub use std::rc::Rc;
+
+mod image;
+pub use image::*;
+
+mod vec3;
+pub use vec3::*;
 
 pub use std::f64::consts::PI;
 pub const EPS: f64 = 1e-8;
