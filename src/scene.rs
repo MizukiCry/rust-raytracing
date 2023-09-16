@@ -12,3 +12,9 @@ pub use two_perlin_spheres::two_perlin_spheres;
 
 mod quads;
 pub use quads::quads;
+
+mod simple_light;
+pub use simple_light::simple_light;
+
+mod cornell_box;
+pub use cornell_box::cornell_box;

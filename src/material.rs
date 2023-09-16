@@ -1,10 +1,14 @@
-mod dielectric;
 mod lambertian;
-mod metal;
-
-pub use dielectric::*;
 pub use lambertian::*;
+
+mod metal;
 pub use metal::*;
+
+mod dielectric;
+pub use dielectric::*;
+
+mod diffuse_light;
+pub use diffuse_light::*;
 
 use crate::*;
 
@@ -16,6 +20,10 @@ pub trait Material {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool;
+
+    fn emitted(&self, _u: f64, _v: f64, _p: &Vec3) -> Vec3 {
+        Vec3::default()
+    }
 }
 
 // pub struct DefaultMaterial {}

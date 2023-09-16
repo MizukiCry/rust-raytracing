@@ -18,6 +18,7 @@ pub struct Camera {
     pub vup: Vec3,
     pub focus_dist: f64,
     pub defocus_angle: f64,
+    pub background: Vec3,
     image_height: i32,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
@@ -75,7 +76,8 @@ impl Camera {
             for j in 0..self.image_width {
                 let mut color = Vec3::default();
                 for _ in 0..self.samples_per_pixel {
-                    color += Self::ray_color(&self.get_random_ray(i, j), self.max_bounce, world);
+                    let ray = self.get_random_ray(i, j);
+                    color += self.ray_color(&ray, self.max_bounce, world);
                 }
                 color /= self.samples_per_pixel as f64;
                 Self::print_color(color);
@@ -101,27 +103,27 @@ impl Camera {
         Ray::new(ray_origin, ray_direction, ray_time)
     }
 
-    fn ray_color(ray: &Ray, depth: i32, world: &impl Hittable) -> Vec3 {
+    fn ray_color(&self, ray: &Ray, depth: i32, world: &impl Hittable) -> Vec3 {
         if depth == 0 {
             return Vec3::default();
         }
         let mut record = HitRecord::default();
-        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
-            let mut scattered = Ray::default();
-            let mut attenuation = Vec3::default();
-            if record
-                .material
-                .scatter(ray, &record, &mut attenuation, &mut scattered)
-            {
-                // if depth == 10 && random_range_i32(0, 99) == 0 {
-                //     eprintln!("Hit {:?}", record.p);
-                // }
-                return attenuation * Self::ray_color(&scattered, depth - 1, world);
-            }
-            return Vec3::default();
+        if !world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
+            return self.background;
         }
-        let a = 0.5 * (ray.direction.unit().y + 1.0);
-        (1.0 - a) * Vec3::new(1.0, 1.0, 1.0) + a * Vec3::new(0.5, 0.7, 1.0)
+
+        let mut scattered = Ray::default();
+        let mut attenuation = Vec3::default();
+        let emission = record.material.emitted(record.u, record.v, &record.p);
+
+        if !record
+            .material
+            .scatter(ray, &record, &mut attenuation, &mut scattered)
+        {
+            return emission;
+        }
+
+        attenuation * self.ray_color(&scattered, depth - 1, world) + emission
     }
 }
 
@@ -130,14 +132,15 @@ impl Default for Camera {
         Self {
             aspect_ratio: 16.0 / 9.0,
             vfov: 20.0,
-            samples_per_pixel: 50,
-            max_bounce: 10,
+            samples_per_pixel: 100,
+            max_bounce: 50,
             image_width: 480,
             camera_center: Vec3::new(0.0, 0.0, 1.0),
             lookat: Vec3::default(),
             vup: Vec3::new(0.0, 1.0, 0.0),
             focus_dist: 10.0,
             defocus_angle: 0.0,
+            background: Vec3::new(0.7, 0.8, 1.0),
             image_height: 0,
             pixel00: Vec3::default(),
             pixel_delta_u: Vec3::default(),
