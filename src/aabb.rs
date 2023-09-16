@@ -90,3 +90,17 @@ impl Default for Aabb {
         )
     }
 }
+
+impl std::ops::Add<Vec3> for Aabb {
+    type Output = Self;
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Self::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
+
+impl std::ops::Add<Aabb> for Vec3 {
+    type Output = Aabb;
+    fn add(self, rhs: Aabb) -> Self::Output {
+        rhs + self
+    }
+}

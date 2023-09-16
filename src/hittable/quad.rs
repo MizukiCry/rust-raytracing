@@ -26,6 +26,59 @@ impl Quad {
             w: n / n.dot(n),
         }
     }
+
+    pub fn new_box(a: Vec3, b: Vec3, material: Rc<dyn Material>) -> HittableList {
+        let mut sides = HittableList::default();
+
+        let min_x = a.x.min(b.x);
+        let min_y = a.y.min(b.y);
+        let min_z = a.z.min(b.z);
+        let max_x = a.x.max(b.x);
+        let max_y = a.y.max(b.y);
+        let max_z = a.z.max(b.z);
+
+        let dx = Vec3::new(max_x - min_x, 0.0, 0.0);
+        let dy = Vec3::new(0.0, max_y - min_y, 0.0);
+        let dz = Vec3::new(0.0, 0.0, max_z - min_z);
+        sides.add(Rc::new(Self::new(
+            Vec3::new(min_x, min_y, max_z),
+            dx,
+            dy,
+            Rc::clone(&material),
+        )));
+        sides.add(Rc::new(Self::new(
+            Vec3::new(max_x, min_y, max_z),
+            -dz,
+            dy,
+            Rc::clone(&material),
+        )));
+        sides.add(Rc::new(Self::new(
+            Vec3::new(max_x, min_y, min_z),
+            -dx,
+            dy,
+            Rc::clone(&material),
+        )));
+        sides.add(Rc::new(Self::new(
+            Vec3::new(min_x, min_y, min_z),
+            dz,
+            dy,
+            Rc::clone(&material),
+        )));
+        sides.add(Rc::new(Self::new(
+            Vec3::new(min_x, max_y, max_z),
+            dx,
+            -dz,
+            Rc::clone(&material),
+        )));
+        sides.add(Rc::new(Self::new(
+            Vec3::new(min_x, min_y, min_z),
+            dx,
+            dz,
+            Rc::clone(&material),
+        )));
+
+        sides
+    }
 }
 
 impl Hittable for Quad {

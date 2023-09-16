@@ -12,7 +12,12 @@ pub use bvh::*;
 mod quad;
 pub use quad::*;
 
-#[derive(Clone)]
+mod translate;
+pub use translate::*;
+
+mod rotate_y;
+pub use rotate_y::*;
+
 pub struct HitRecord {
     pub p: Vec3,
     pub t: f64,

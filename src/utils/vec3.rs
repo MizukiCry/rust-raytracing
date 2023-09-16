@@ -211,7 +211,8 @@ impl std::fmt::Display for Vec3 {
 
 #[cfg(test)]
 mod tests {
-    use super::super::utils;
+    use crate::utils;
+
     use super::Vec3;
 
     #[test]
