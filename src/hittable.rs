@@ -9,6 +9,9 @@ pub use hittablelist::*;
 mod bvh;
 pub use bvh::*;
 
+mod quad;
+pub use quad::*;
+
 #[derive(Clone)]
 pub struct HitRecord {
     pub p: Vec3,

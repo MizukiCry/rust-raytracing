@@ -1,12 +1,12 @@
 use crate::*;
 
 pub struct Sphere {
-    pub center: Vec3,
-    pub radius: f64,
-    pub material: Rc<dyn Material>,
-    pub is_moving: bool,
-    pub moving_direction: Vec3,
-    pub bounding_box: Aabb,
+    center: Vec3,
+    radius: f64,
+    material: Rc<dyn Material>,
+    is_moving: bool,
+    moving_direction: Vec3,
+    bounding_box: Aabb,
 }
 
 impl Sphere {

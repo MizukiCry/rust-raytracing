@@ -24,6 +24,25 @@ impl Aabb {
         )
     }
 
+    pub fn pad(&self) -> Self {
+        let new_x = if self.x.size() >= EPS {
+            self.x
+        } else {
+            self.x.expand(EPS)
+        };
+        let new_y = if self.y.size() >= EPS {
+            self.y
+        } else {
+            self.y.expand(EPS)
+        };
+        let new_z = if self.z.size() >= EPS {
+            self.z
+        } else {
+            self.z.expand(EPS)
+        };
+        Self::new(new_x, new_y, new_z)
+    }
+
     pub fn union(&self, x: &Aabb) -> Self {
         Self::new(self.x.union(&x.x), self.y.union(&x.y), self.z.union(&x.z))
     }
