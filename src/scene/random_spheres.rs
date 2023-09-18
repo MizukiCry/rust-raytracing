@@ -29,9 +29,9 @@ pub fn random_spheres() -> (Camera, BvhNode) {
             );
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                 let sphere_material: Rc<dyn Material> = match choose_material {
-                    x if x < 0.8 => Rc::new(Lambertian::new(Rc::new(SolidColor::new(
-                        Vec3::random() * Vec3::random(),
-                    )))),
+                    x if x < 0.8 => {
+                        Rc::new(Lambertian::from_color(Vec3::random() * Vec3::random()))
+                    }
                     x if x < 0.95 => Rc::new(Metal::new(
                         Vec3::random_range(0.5, 1.0),
                         random_range_f64(0.0, 0.5),
@@ -59,9 +59,7 @@ pub fn random_spheres() -> (Camera, BvhNode) {
         1.0,
         material1,
     )));
-    let material2: Rc<dyn Material> = Rc::new(Lambertian::new(Rc::new(SolidColor::new(
-        Vec3::new(0.4, 0.2, 0.1),
-    ))));
+    let material2: Rc<dyn Material> = Rc::new(Lambertian::from_color(Vec3::new(0.4, 0.2, 0.1)));
     world.add(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,

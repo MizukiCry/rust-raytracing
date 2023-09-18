@@ -18,6 +18,9 @@ pub use translate::*;
 mod rotate_y;
 pub use rotate_y::*;
 
+mod constant_medium;
+pub use constant_medium::*;
+
 pub struct HitRecord {
     pub p: Vec3,
     pub t: f64,
@@ -66,7 +69,7 @@ impl Default for HitRecord {
             f64::default(),
             f64::default(),
             f64::default(),
-            Rc::new(Lambertian::default()),
+            Rc::new(Dielectric::default()),
             Vec3::default(),
             bool::default(),
         )

@@ -13,15 +13,9 @@ pub fn cornell_box() -> (Camera, HittableList) {
 
     let mut world = HittableList::default();
 
-    let red: Rc<dyn Material> = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.65, 0.05, 0.05,
-    )))));
-    let white: Rc<dyn Material> = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.73, 0.73, 0.73,
-    )))));
-    let green: Rc<dyn Material> = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.12, 0.45, 0.15,
-    )))));
+    let red: Rc<dyn Material> = Rc::new(Lambertian::from_color(Vec3::new(0.65, 0.05, 0.05)));
+    let white: Rc<dyn Material> = Rc::new(Lambertian::from_color(Vec3::new(0.73, 0.73, 0.73)));
+    let green: Rc<dyn Material> = Rc::new(Lambertian::from_color(Vec3::new(0.12, 0.45, 0.15)));
     let light: Rc<dyn Material> = Rc::new(DiffuseLight::from_color(Vec3::new(15.0, 15.0, 15.0)));
 
     world.add(Rc::new(Quad::new(

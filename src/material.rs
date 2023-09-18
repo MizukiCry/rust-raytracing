@@ -10,6 +10,9 @@ pub use dielectric::*;
 mod diffuse_light;
 pub use diffuse_light::*;
 
+mod isotropic;
+pub use isotropic::*;
+
 use crate::*;
 
 pub trait Material {

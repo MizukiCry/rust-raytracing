@@ -8,6 +8,10 @@ impl Lambertian {
     pub fn new(albedo: Rc<dyn Texture>) -> Self {
         Self { albedo }
     }
+
+    pub fn from_color(color: Vec3) -> Self {
+        Self::new(Rc::new(SolidColor::new(color)))
+    }
 }
 
 impl Default for Lambertian {

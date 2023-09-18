@@ -9,21 +9,11 @@ pub fn quads() -> (Camera, HittableList) {
 
     let mut world = HittableList::default();
 
-    let left_red = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        1.0, 0.2, 0.2,
-    )))));
-    let back_green = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.2, 1.0, 0.2,
-    )))));
-    let right_blue = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.2, 0.2, 1.0,
-    )))));
-    let upper_orange = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        1.0, 0.5, 0.0,
-    )))));
-    let lower_teal = Rc::new(Lambertian::new(Rc::new(SolidColor::new(Vec3::new(
-        0.2, 0.8, 0.8,
-    )))));
+    let left_red = Rc::new(Lambertian::from_color(Vec3::new(1.0, 0.2, 0.2)));
+    let back_green = Rc::new(Lambertian::from_color(Vec3::new(0.2, 1.0, 0.2)));
+    let right_blue = Rc::new(Lambertian::from_color(Vec3::new(0.2, 0.2, 1.0)));
+    let upper_orange = Rc::new(Lambertian::from_color(Vec3::new(1.0, 0.5, 0.0)));
+    let lower_teal = Rc::new(Lambertian::from_color(Vec3::new(0.2, 0.8, 0.8)));
 
     world.add(Rc::new(Quad::new(
         Vec3::new(-3.0, -2.0, 5.0),

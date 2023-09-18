@@ -18,3 +18,9 @@ pub use simple_light::simple_light;
 
 mod cornell_box;
 pub use cornell_box::cornell_box;
+
+mod cornell_smoke;
+pub use cornell_smoke::cornell_smoke;
+
+mod final_scene;
+pub use final_scene::final_scene;

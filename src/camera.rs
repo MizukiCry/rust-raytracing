@@ -86,7 +86,7 @@ impl Camera {
         eprintln!("\rDone. [{} lines]            ", self.image_height);
     }
 
-    fn get_random_ray(&mut self, i: i32, j: i32) -> Ray {
+    fn get_random_ray(&self, i: i32, j: i32) -> Ray {
         let pixel_center =
             self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
         let pixel_sample = pixel_center
@@ -108,7 +108,7 @@ impl Camera {
             return Vec3::default();
         }
         let mut record = HitRecord::default();
-        if !world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut record) {
+        if !world.hit(ray, Interval::new(0.0001, f64::INFINITY), &mut record) {
             return self.background;
         }
 

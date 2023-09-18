@@ -3,6 +3,6 @@
 use rust_raytracing::*;
 
 fn main() {
-    let (mut camera, world) = cornell_box();
+    let (mut camera, world) = final_scene();
     camera.render(&world);
 }
