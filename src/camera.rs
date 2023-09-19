@@ -19,6 +19,9 @@ pub struct Camera {
     pub focus_dist: f64,
     pub defocus_angle: f64,
     pub background: Vec3,
+    pub stratified: bool,
+    sqrt_spp: i32,
+    inv_sqrt_spp: f64,
     image_height: i32,
     pixel00: Vec3,
     pixel_delta_u: Vec3,
@@ -29,6 +32,8 @@ pub struct Camera {
 
 impl Camera {
     pub fn initialize(&mut self) {
+        self.sqrt_spp = (self.samples_per_pixel as f64).sqrt() as i32;
+        self.inv_sqrt_spp = 1.0 / self.sqrt_spp as f64;
         self.image_height = ((self.image_width as f64 / self.aspect_ratio) as i32).max(1);
         let viewport_height = 2.0 * f64::tan(degree_to_radian(self.vfov) / 2.0) * self.focus_dist;
         let viewport_width =
@@ -75,10 +80,24 @@ impl Camera {
             std::io::stderr().flush().unwrap();
             for j in 0..self.image_width {
                 let mut color = Vec3::default();
-                for _ in 0..self.samples_per_pixel {
-                    let ray = self.get_random_ray(i, j);
-                    color += self.ray_color(&ray, self.max_bounce, world);
+                if self.stratified {
+                    for si in 0..self.sqrt_spp {
+                        for sj in 0..self.sqrt_spp {
+                            let ray = self.get_random_ray_stratified(i, j, si, sj);
+                            color += self.ray_color(&ray, self.max_bounce, world);
+                        }
+                    }
+                    for _ in 0..self.samples_per_pixel - self.sqrt_spp * self.sqrt_spp {
+                        let ray = self.get_random_ray(i, j);
+                        color += self.ray_color(&ray, self.max_bounce, world);
+                    }
+                } else {
+                    for _ in 0..self.samples_per_pixel {
+                        let ray = self.get_random_ray(i, j);
+                        color += self.ray_color(&ray, self.max_bounce, world);
+                    }
                 }
+
                 color /= self.samples_per_pixel as f64;
                 Self::print_color(color);
             }
@@ -92,6 +111,26 @@ impl Camera {
         let pixel_sample = pixel_center
             + random_range_f64(-0.5, 0.5) * self.pixel_delta_u
             + random_range_f64(-0.5, 0.5) * self.pixel_delta_v;
+        let ray_origin = if !self.defocus_angle.is_sign_positive() {
+            self.camera_center
+        } else {
+            self.camera_center
+                + Vec3::random_in_unit_disk() * (self.defocus_disk_u + self.defocus_disk_v)
+        };
+        let ray_direction = pixel_sample - ray_origin;
+        let ray_time = random_f64();
+        Ray::new(ray_origin, ray_direction, ray_time)
+    }
+
+    fn get_random_ray_stratified(&self, i: i32, j: i32, si: i32, sj: i32) -> Ray {
+        let pixel_center =
+            self.pixel00 + (j as f64) * self.pixel_delta_u + (i as f64) * self.pixel_delta_v;
+        // let pixel_sample = pixel_center
+        //     + random_range_f64(-0.5, 0.5) * self.pixel_delta_u
+        //     + random_range_f64(-0.5, 0.5) * self.pixel_delta_v;
+        let pixel_sample = pixel_center
+            + ((sj as f64 + random_f64()) * self.inv_sqrt_spp - 0.5) * self.pixel_delta_u
+            + ((si as f64 + random_f64()) * self.inv_sqrt_spp - 0.5) * self.pixel_delta_v;
         let ray_origin = if !self.defocus_angle.is_sign_positive() {
             self.camera_center
         } else {
@@ -132,7 +171,7 @@ impl Default for Camera {
         Self {
             aspect_ratio: 16.0 / 9.0,
             vfov: 20.0,
-            samples_per_pixel: 100,
+            samples_per_pixel: 64,
             max_bounce: 50,
             image_width: 480,
             camera_center: Vec3::new(0.0, 0.0, 1.0),
@@ -141,6 +180,9 @@ impl Default for Camera {
             focus_dist: 10.0,
             defocus_angle: 0.0,
             background: Vec3::new(0.7, 0.8, 1.0),
+            stratified: true,
+            sqrt_spp: 8,
+            inv_sqrt_spp: 1.0 / 8.0,
             image_height: 0,
             pixel00: Vec3::default(),
             pixel_delta_u: Vec3::default(),
