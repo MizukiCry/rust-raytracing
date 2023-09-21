@@ -4,12 +4,12 @@ pub fn cornell_box() -> (Camera, HittableList) {
     let mut camera = Camera::default();
     camera.aspect_ratio = 1.0;
     camera.image_width = 600;
-    // camera.samples_per_pixel = 200;
+    camera.samples_per_pixel = 100;
     camera.background = Vec3::default();
     camera.vfov = 40.0;
     camera.camera_center = Vec3::new(278.0, 278.0, -800.0);
     camera.lookat = Vec3::new(278.0, 278.0, 0.0);
-    camera.stratified = false;
+    // camera.stratified = false;
     camera.initialize();
 
     let mut world = HittableList::default();
