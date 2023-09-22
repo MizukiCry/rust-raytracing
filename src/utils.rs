@@ -12,6 +12,9 @@ pub use ray::*;
 mod onb;
 pub use onb::*;
 
+mod pdf;
+pub use pdf::*;
+
 pub use std::f64::consts::PI;
 pub const EPS: f64 = 1e-8;
 pub const MAX_COLOR: i32 = 255;

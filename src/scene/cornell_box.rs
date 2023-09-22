@@ -1,10 +1,10 @@
 use crate::*;
 
-pub fn cornell_box() -> (Camera, HittableList) {
+pub fn cornell_box() -> (Camera, HittableList, HittableList) {
     let mut camera = Camera::default();
     camera.aspect_ratio = 1.0;
     camera.image_width = 600;
-    camera.samples_per_pixel = 10;
+    camera.samples_per_pixel = 1000;
     camera.background = Vec3::default();
     camera.vfov = 40.0;
     camera.camera_center = Vec3::new(278.0, 278.0, -800.0);
@@ -79,5 +79,13 @@ pub fn cornell_box() -> (Camera, HittableList) {
         Vec3::new(130.0, 0.0, 65.0),
     )));
 
-    (camera, world)
+    let mut lights = HittableList::default();
+    lights.add(Rc::new(Quad::new(
+        Vec3::new(343.0, 554.0, 332.0),
+        Vec3::new(-130.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -105.0),
+        Rc::new(DefaultMaterial::default()),
+    )));
+
+    (camera, world, lights)
 }

@@ -80,4 +80,12 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: Interval, record: &mut HitRecord) -> bool;
 
     fn bounding_box(&self) -> &Aabb;
+
+    fn pdf_value(&self, _o: &Vec3, _v: &Vec3) -> f64 {
+        0.0
+    }
+
+    fn random(&self, _o: &Vec3) -> Vec3 {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
 }

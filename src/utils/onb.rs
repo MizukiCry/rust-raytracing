@@ -1,12 +1,12 @@
 use crate::*;
 
-pub struct Onb {
+pub struct ONB {
     pub u: Vec3,
     pub v: Vec3,
     pub w: Vec3,
 }
 
-impl Onb {
+impl ONB {
     pub fn new(u: Vec3, v: Vec3, w: Vec3) -> Self {
         Self { u, v, w }
     }

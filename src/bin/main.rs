@@ -3,6 +3,6 @@
 use rust_raytracing::*;
 
 fn main() {
-    let (mut camera, world) = cornell_box();
-    camera.render(&world);
+    let (mut camera, world, lights) = cornell_box();
+    camera.render(&world, &(Rc::new(lights) as Rc<dyn Hittable>));
 }

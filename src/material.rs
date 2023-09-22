@@ -18,12 +18,14 @@ use crate::*;
 pub trait Material {
     fn scatter(
         &self,
-        ray: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
-        pdf: &mut f64,
-    ) -> bool;
+        _ray: &Ray,
+        _record: &HitRecord,
+        _attenuation: &mut Vec3,
+        _scattered: &mut Ray,
+        _pdf: &mut f64,
+    ) -> bool {
+        false
+    }
 
     fn scattering_pdf(&self, _ray: &Ray, _record: &HitRecord, _scattered: &Ray) -> f64 {
         0.0
@@ -34,6 +36,7 @@ pub trait Material {
     }
 }
 
-// pub struct DefaultMaterial {}
-// impl Material for DefaultMaterial {}
+#[derive(Default)]
+pub struct DefaultMaterial {}
+impl Material for DefaultMaterial {}
 // pub static DEFAULT_MATERIAL: DefaultMaterial = DefaultMaterial {};

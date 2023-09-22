@@ -29,7 +29,7 @@ impl Material for Lambertian {
         scattered: &mut Ray,
         pdf: &mut f64,
     ) -> bool {
-        let base = Onb::from(&record.normal);
+        let base = ONB::from(&record.normal);
         let direction = base.local_vec3(&Vec3::random_cosine_direction());
         *scattered = Ray::new(record.p, direction, ray.time);
         *attenuation = self.albedo.color(record.u, record.v, &record.p);

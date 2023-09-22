@@ -69,7 +69,7 @@ impl Camera {
         );
     }
 
-    pub fn render(&mut self, world: &impl Hittable) {
+    pub fn render(&mut self, world: &impl Hittable, lights: &Rc<dyn Hittable>) {
         println!(
             "P3\n{} {}\n{}",
             self.image_width, self.image_height, MAX_COLOR
@@ -84,17 +84,17 @@ impl Camera {
                     for si in 0..self.sqrt_spp {
                         for sj in 0..self.sqrt_spp {
                             let ray = self.get_random_ray_stratified(i, j, si, sj);
-                            color += self.ray_color(&ray, self.max_bounce, world);
+                            color += self.ray_color(&ray, self.max_bounce, world, lights);
                         }
                     }
                     for _ in 0..self.samples_per_pixel - self.sqrt_spp * self.sqrt_spp {
                         let ray = self.get_random_ray(i, j);
-                        color += self.ray_color(&ray, self.max_bounce, world);
+                        color += self.ray_color(&ray, self.max_bounce, world, lights);
                     }
                 } else {
                     for _ in 0..self.samples_per_pixel {
                         let ray = self.get_random_ray(i, j);
-                        color += self.ray_color(&ray, self.max_bounce, world);
+                        color += self.ray_color(&ray, self.max_bounce, world, lights);
                     }
                 }
 
@@ -142,7 +142,13 @@ impl Camera {
         Ray::new(ray_origin, ray_direction, ray_time)
     }
 
-    fn ray_color(&self, ray: &Ray, depth: i32, world: &impl Hittable) -> Vec3 {
+    fn ray_color(
+        &self,
+        ray: &Ray,
+        depth: i32,
+        world: &impl Hittable,
+        lights: &Rc<dyn Hittable>,
+    ) -> Vec3 {
         if depth == 0 {
             return Vec3::default();
         }
@@ -153,41 +159,28 @@ impl Camera {
 
         let mut scattered = Ray::default();
         let mut attenuation = Vec3::default();
-        let mut pdf = 0.0;
+        let mut pdf_val = 0.0;
         let emission_color = record
             .material
             .emitted(ray, &record, record.u, record.v, &record.p);
 
         if !record
             .material
-            .scatter(ray, &record, &mut attenuation, &mut scattered, &mut pdf)
+            .scatter(ray, &record, &mut attenuation, &mut scattered, &mut pdf_val)
         {
             return emission_color;
         }
 
-        let on_light = Vec3::new(
-            random_range_f64(213.0, 343.0),
-            554.0,
-            random_range_f64(227.0, 332.0),
-        );
-        let to_light = on_light - record.p;
-        let dis_squared = to_light.length_squared();
-        let to_light = to_light.unit();
-        if record.normal.dot(to_light).is_sign_negative() {
-            return emission_color;
-        }
+        let p0: Rc<dyn PDF> = Rc::new(HittablePDF::new(Rc::clone(lights), record.p));
+        let p1: Rc<dyn PDF> = Rc::new(CosinePDF::from(&record.normal));
+        let mixed_pdf = MixturePDF::new(p0, p1);
+        scattered = Ray::new(record.p, mixed_pdf.generate(), ray.time);
+        pdf_val = mixed_pdf.value(&scattered.direction);
 
-        let light_area = (343.0 - 213.0) * (332.0 - 227.0);
-        let light_cos = to_light.y.abs();
-        if light_cos < EPS {
-            return emission_color;
-        }
-
-        pdf = dis_squared / (light_cos * light_area);
-        scattered = Ray::new(record.p, to_light, ray.time);
         let scattering_pdf = record.material.scattering_pdf(ray, &record, &scattered);
         let scatter_color =
-            (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world)) / pdf;
+            (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world, lights))
+                / pdf_val;
 
         emission_color + scatter_color
     }

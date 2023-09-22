@@ -9,6 +9,7 @@ pub struct Quad {
     normal: Vec3,
     d: f64,
     w: Vec3,
+    area: f64,
 }
 
 impl Quad {
@@ -24,6 +25,7 @@ impl Quad {
             normal,
             d: normal.dot(q),
             w: n / n.dot(n),
+            area: n.length(),
         }
     }
 
@@ -115,5 +117,23 @@ impl Hittable for Quad {
 
     fn bounding_box(&self) -> &Aabb {
         &self.bounding_box
+    }
+
+    fn pdf_value(&self, origin: &Vec3, v: &Vec3) -> f64 {
+        let mut record = HitRecord::default();
+        if !self.hit(
+            &Ray::new(*origin, *v, 0.0),
+            Interval::new(0.0001, f64::INFINITY),
+            &mut record,
+        ) {
+            return 0.0;
+        }
+        let dis_squared = record.t * record.t * v.length_squared();
+        let cosine = (v.dot(record.normal) / v.length()).abs();
+        dis_squared / (cosine * self.area)
+    }
+
+    fn random(&self, origin: &Vec3) -> Vec3 {
+        self.q + self.u * random_f64() + self.v * random_f64() - *origin
     }
 }
