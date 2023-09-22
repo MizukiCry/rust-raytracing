@@ -21,9 +21,15 @@ impl Material for Isotropic {
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
+        pdf: &mut f64,
     ) -> bool {
         *scattered = Ray::new(record.p, Vec3::random_unit(), ray.time);
         *attenuation = self.albedo.color(record.u, record.v, &record.p);
+        *pdf = 1.0 / (4.0 * PI);
         true
+    }
+
+    fn scattering_pdf(&self, _ray: &Ray, _record: &HitRecord, _scattered: &Ray) -> f64 {
+        1.0 / (4.0 * PI)
     }
 }

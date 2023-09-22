@@ -153,17 +153,39 @@ impl Camera {
 
         let mut scattered = Ray::default();
         let mut attenuation = Vec3::default();
-        let emission_color = record.material.emitted(record.u, record.v, &record.p);
+        let mut pdf = 0.0;
+        let emission_color = record
+            .material
+            .emitted(ray, &record, record.u, record.v, &record.p);
 
         if !record
             .material
-            .scatter(ray, &record, &mut attenuation, &mut scattered)
+            .scatter(ray, &record, &mut attenuation, &mut scattered, &mut pdf)
         {
             return emission_color;
         }
 
+        let on_light = Vec3::new(
+            random_range_f64(213.0, 343.0),
+            554.0,
+            random_range_f64(227.0, 332.0),
+        );
+        let to_light = on_light - record.p;
+        let dis_squared = to_light.length_squared();
+        let to_light = to_light.unit();
+        if record.normal.dot(to_light).is_sign_negative() {
+            return emission_color;
+        }
+
+        let light_area = (343.0 - 213.0) * (332.0 - 227.0);
+        let light_cos = to_light.y.abs();
+        if light_cos < EPS {
+            return emission_color;
+        }
+
+        pdf = dis_squared / (light_cos * light_area);
+        scattered = Ray::new(record.p, to_light, ray.time);
         let scattering_pdf = record.material.scattering_pdf(ray, &record, &scattered);
-        let pdf = scattering_pdf;
         let scatter_color =
             (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world)) / pdf;
 

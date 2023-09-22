@@ -81,6 +81,17 @@ impl Vec3 {
         }
     }
 
+    pub fn random_cosine_direction() -> Self {
+        let r1 = random_f64();
+        let r2 = random_f64();
+        let phi = 2.0 * PI * r1;
+        Self::new(
+            phi.cos() * r2.sqrt(),
+            phi.sin() * r2.sqrt(),
+            (1.0 - r2).sqrt(),
+        )
+    }
+
     pub fn reflect(v: Vec3, n: Vec3) -> Self {
         v - 2.0 * v.dot(n) * n
     }

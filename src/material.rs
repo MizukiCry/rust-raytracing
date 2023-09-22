@@ -22,13 +22,14 @@ pub trait Material {
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
+        pdf: &mut f64,
     ) -> bool;
 
     fn scattering_pdf(&self, _ray: &Ray, _record: &HitRecord, _scattered: &Ray) -> f64 {
         0.0
     }
 
-    fn emitted(&self, _u: f64, _v: f64, _p: &Vec3) -> Vec3 {
+    fn emitted(&self, _ray: &Ray, _record: &HitRecord, _u: f64, _v: f64, _p: &Vec3) -> Vec3 {
         Vec3::default()
     }
 }

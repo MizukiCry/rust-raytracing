@@ -29,6 +29,7 @@ impl Material for Dielectric {
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
+        _pdf: &mut f64,
     ) -> bool {
         *attenuation = Vec3::new(1.0, 1.0, 1.0);
 

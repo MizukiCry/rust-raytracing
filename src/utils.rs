@@ -6,6 +6,12 @@ pub use image::*;
 mod vec3;
 pub use vec3::*;
 
+mod ray;
+pub use ray::*;
+
+mod onb;
+pub use onb::*;
+
 pub use std::f64::consts::PI;
 pub const EPS: f64 = 1e-8;
 pub const MAX_COLOR: i32 = 255;

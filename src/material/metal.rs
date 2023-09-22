@@ -27,6 +27,7 @@ impl Material for Metal {
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
+        _pdf: &mut f64,
     ) -> bool {
         let reflected = Vec3::reflect(ray.direction.unit(), record.normal);
         *scattered = Ray::new(

@@ -27,13 +27,13 @@ impl Material for Lambertian {
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
+        pdf: &mut f64,
     ) -> bool {
-        let mut direction = Vec3::random_on_hemisphere(record.normal);
-        if is_zero_vec3(direction) {
-            direction = record.normal;
-        }
+        let base = Onb::from(&record.normal);
+        let direction = base.local_vec3(&Vec3::random_cosine_direction());
         *scattered = Ray::new(record.p, direction, ray.time);
         *attenuation = self.albedo.color(record.u, record.v, &record.p);
+        *pdf = base.w.dot(scattered.direction) / PI;
         true
     }
 
