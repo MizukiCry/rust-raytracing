@@ -69,7 +69,7 @@ impl Default for HitRecord {
             f64::default(),
             f64::default(),
             f64::default(),
-            Rc::new(Dielectric::default()),
+            Rc::new(DefaultMaterial::default()),
             Vec3::default(),
             bool::default(),
         )

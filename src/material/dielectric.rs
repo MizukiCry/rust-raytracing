@@ -23,15 +23,9 @@ impl Default for Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(
-        &self,
-        ray: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
-        _pdf: &mut f64,
-    ) -> bool {
-        *attenuation = Vec3::new(1.0, 1.0, 1.0);
+    fn scatter(&self, ray: &Ray, record: &HitRecord, srecord: &mut ScatterRecord) -> bool {
+        srecord.attenuation = Vec3::new(1.0, 1.0, 1.0);
+        srecord.pdf = None;
 
         let refraction_ratio = if record.front_face {
             1.0 / self.ir
@@ -49,7 +43,7 @@ impl Material for Dielectric {
         } else {
             Vec3::refract(unit_direction, record.normal, refraction_ratio)
         };
-        *scattered = Ray::new(record.p, direction, ray.time);
+        srecord.skip_pdf_ray = Ray::new(record.p, direction, ray.time);
         true
     }
 }

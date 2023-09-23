@@ -60,6 +60,26 @@ impl Camera {
     fn print_color(mut color: Vec3) {
         // Convert linear space to gamma space.
         color = Vec3::new(color.x.sqrt(), color.y.sqrt(), color.z.sqrt());
+        // static RANGE: Interval = Interval::new(0.0, 1.0);
+        // if !RANGE.contains(color.x) {
+        //     color.x = 0.0;
+        // }
+        // if !RANGE.contains(color.y) {
+        //     color.y = 0.0;
+        // }
+        // if !RANGE.contains(color.z) {
+        //     color.z = 0.0;
+        // }
+        if color.x.is_nan() {
+            color.x = 0.0;
+        }
+        if color.y.is_nan() {
+            color.y = 0.0;
+        }
+        if color.z.is_nan() {
+            color.z = 0.0;
+        }
+
         color *= MAX_COLOR as f64 + 1.0;
         println!(
             "{} {} {}",
@@ -157,30 +177,30 @@ impl Camera {
             return self.background;
         }
 
-        let mut scattered = Ray::default();
-        let mut attenuation = Vec3::default();
-        let mut pdf_val = 0.0;
+        let mut srecord = ScatterRecord::default();
         let emission_color = record
             .material
             .emitted(ray, &record, record.u, record.v, &record.p);
 
-        if !record
-            .material
-            .scatter(ray, &record, &mut attenuation, &mut scattered, &mut pdf_val)
-        {
+        if !record.material.scatter(ray, &record, &mut srecord) {
             return emission_color;
         }
 
-        let p0: Rc<dyn PDF> = Rc::new(HittablePDF::new(Rc::clone(lights), record.p));
-        let p1: Rc<dyn PDF> = Rc::new(CosinePDF::from(&record.normal));
-        let mixed_pdf = MixturePDF::new(p0, p1);
-        scattered = Ray::new(record.p, mixed_pdf.generate(), ray.time);
-        pdf_val = mixed_pdf.value(&scattered.direction);
+        if srecord.pdf.is_none() {
+            return srecord.attenuation
+                * self.ray_color(&srecord.skip_pdf_ray, depth - 1, world, lights);
+        }
+
+        let light_pdf = Rc::new(HittablePDF::new(Rc::clone(lights), record.p));
+        let pdf = MixturePDF::new(light_pdf, srecord.pdf.unwrap());
+        let scattered = Ray::new(record.p, pdf.generate(), ray.time);
+        let pdf_val = pdf.value(&scattered.direction);
 
         let scattering_pdf = record.material.scattering_pdf(ray, &record, &scattered);
-        let scatter_color =
-            (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world, lights))
-                / pdf_val;
+        let scatter_color = (srecord.attenuation
+            * scattering_pdf
+            * self.ray_color(&scattered, depth - 1, world, lights))
+            / pdf_val;
 
         emission_color + scatter_color
     }

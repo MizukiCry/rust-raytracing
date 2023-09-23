@@ -15,17 +15,9 @@ impl Isotropic {
 }
 
 impl Material for Isotropic {
-    fn scatter(
-        &self,
-        ray: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
-        pdf: &mut f64,
-    ) -> bool {
-        *scattered = Ray::new(record.p, Vec3::random_unit(), ray.time);
-        *attenuation = self.albedo.color(record.u, record.v, &record.p);
-        *pdf = 1.0 / (4.0 * PI);
+    fn scatter(&self, _ray: &Ray, record: &HitRecord, srecord: &mut ScatterRecord) -> bool {
+        srecord.attenuation = self.albedo.color(record.u, record.v, &record.p);
+        srecord.pdf = Some(Rc::new(SpherePDF::default()));
         true
     }
 

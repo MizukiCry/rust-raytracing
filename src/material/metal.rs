@@ -21,21 +21,16 @@ impl Default for Metal {
 }
 
 impl Material for Metal {
-    fn scatter(
-        &self,
-        ray: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
-        _pdf: &mut f64,
-    ) -> bool {
+    fn scatter(&self, ray: &Ray, record: &HitRecord, srecord: &mut ScatterRecord) -> bool {
+        srecord.attenuation = self.albedo;
+        srecord.pdf = None;
         let reflected = Vec3::reflect(ray.direction.unit(), record.normal);
-        *scattered = Ray::new(
+        srecord.skip_pdf_ray = Ray::new(
             record.p,
             reflected + self.fuzz * Vec3::random_unit(),
             ray.time,
         );
-        *attenuation = self.albedo;
-        scattered.direction.dot(record.normal).is_sign_positive()
+        true
+        // scattered.direction.dot(record.normal).is_sign_positive()
     }
 }

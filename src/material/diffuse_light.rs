@@ -17,17 +17,6 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(
-        &self,
-        _ray: &Ray,
-        _record: &HitRecord,
-        _attenuation: &mut Vec3,
-        _scattered: &mut Ray,
-        _pdf: &mut f64,
-    ) -> bool {
-        false
-    }
-
     fn emitted(&self, _ray: &Ray, record: &HitRecord, u: f64, v: f64, p: &Vec3) -> Vec3 {
         if !record.front_face {
             return Vec3::default();

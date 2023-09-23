@@ -15,15 +15,15 @@ pub use isotropic::*;
 
 use crate::*;
 
+#[derive(Default)]
+pub struct ScatterRecord {
+    pub attenuation: Vec3,
+    pub pdf: Option<Rc<dyn PDF>>,
+    pub skip_pdf_ray: Ray,
+}
+
 pub trait Material {
-    fn scatter(
-        &self,
-        _ray: &Ray,
-        _record: &HitRecord,
-        _attenuation: &mut Vec3,
-        _scattered: &mut Ray,
-        _pdf: &mut f64,
-    ) -> bool {
+    fn scatter(&self, _ray: &Ray, _record: &HitRecord, _srecord: &mut ScatterRecord) -> bool {
         false
     }
 
@@ -39,4 +39,3 @@ pub trait Material {
 #[derive(Default)]
 pub struct DefaultMaterial {}
 impl Material for DefaultMaterial {}
-// pub static DEFAULT_MATERIAL: DefaultMaterial = DefaultMaterial {};

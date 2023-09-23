@@ -55,6 +55,18 @@ impl Sphere {
             f64::acos(-p.y) / PI,
         )
     }
+
+    fn random_to_sphere(radius: f64, dis_squared: f64) -> Vec3 {
+        let r1 = random_f64();
+        let r2 = random_f64();
+        let z = 1.0 + r2 * ((1.0 - radius * radius / dis_squared).sqrt() - 1.0);
+        let phi = 2.0 * PI * r1;
+        Vec3::new(
+            phi.cos() * (1.0 - z * z).sqrt(),
+            phi.sin() * (1.0 - z * z).sqrt(),
+            z,
+        )
+    }
 }
 
 impl Default for Sphere {
@@ -100,5 +112,28 @@ impl Hittable for Sphere {
 
     fn bounding_box(&self) -> &Aabb {
         &self.bounding_box
+    }
+
+    fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f64 {
+        let mut record = HitRecord::default();
+        if !self.hit(
+            &Ray::new(*o, *v, 0.0),
+            Interval::new(0.0001, f64::INFINITY),
+            &mut record,
+        ) {
+            return 0.0;
+        }
+        let cos_theta_max =
+            (1.0 - self.radius * self.radius / (self.center - *o).length_squared()).sqrt();
+        1.0 / (2.0 * PI * (1.0 - cos_theta_max))
+    }
+
+    fn random(&self, o: &Vec3) -> Vec3 {
+        let direction = self.center - *o;
+        let base = ONB::from(&direction);
+        base.local_vec3(&Self::random_to_sphere(
+            self.radius,
+            direction.length_squared(),
+        ))
     }
 }

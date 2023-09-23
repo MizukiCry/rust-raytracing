@@ -21,19 +21,9 @@ impl Default for Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(
-        &self,
-        ray: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
-        pdf: &mut f64,
-    ) -> bool {
-        let base = ONB::from(&record.normal);
-        let direction = base.local_vec3(&Vec3::random_cosine_direction());
-        *scattered = Ray::new(record.p, direction, ray.time);
-        *attenuation = self.albedo.color(record.u, record.v, &record.p);
-        *pdf = base.w.dot(scattered.direction) / PI;
+    fn scatter(&self, _ray: &Ray, record: &HitRecord, srecord: &mut ScatterRecord) -> bool {
+        srecord.attenuation = self.albedo.color(record.u, record.v, &record.p);
+        srecord.pdf = Some(Rc::new(CosinePDF::from(&record.normal)));
         true
     }
 

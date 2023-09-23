@@ -56,6 +56,17 @@ pub fn cornell_box() -> (Camera, HittableList, HittableList) {
         Rc::clone(&white),
     )));
 
+    // world.add(Rc::new(Translate::new(
+    //     Rc::new(RotateY::new(
+    //         Rc::new(Quad::new_box(
+    //             Vec3::new(0.0, 0.0, 0.0),
+    //             Vec3::new(165.0, 330.0, 165.0),
+    //             Rc::new(Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.0)),
+    //         )),
+    //         15.0,
+    //     )),
+    //     Vec3::new(265.0, 0.0, 295.0),
+    // )));
     world.add(Rc::new(Translate::new(
         Rc::new(RotateY::new(
             Rc::new(Quad::new_box(
@@ -67,16 +78,22 @@ pub fn cornell_box() -> (Camera, HittableList, HittableList) {
         )),
         Vec3::new(265.0, 0.0, 295.0),
     )));
-    world.add(Rc::new(Translate::new(
-        Rc::new(RotateY::new(
-            Rc::new(Quad::new_box(
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(165.0, 165.0, 165.0),
-                Rc::clone(&white),
-            )),
-            -18.0,
-        )),
-        Vec3::new(130.0, 0.0, 65.0),
+
+    // world.add(Rc::new(Translate::new(
+    //     Rc::new(RotateY::new(
+    //         Rc::new(Quad::new_box(
+    //             Vec3::new(0.0, 0.0, 0.0),
+    //             Vec3::new(165.0, 165.0, 165.0),
+    //             Rc::clone(&white),
+    //         )),
+    //         -18.0,
+    //     )),
+    //     Vec3::new(130.0, 0.0, 65.0),
+    // )));
+    world.add(Rc::new(Sphere::new(
+        Vec3::new(190.0, 90.0, 190.0),
+        90.0,
+        Rc::new(Dielectric::new(1.5)),
     )));
 
     let mut lights = HittableList::default();
@@ -84,6 +101,11 @@ pub fn cornell_box() -> (Camera, HittableList, HittableList) {
         Vec3::new(343.0, 554.0, 332.0),
         Vec3::new(-130.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, -105.0),
+        Rc::new(DefaultMaterial::default()),
+    )));
+    lights.add(Rc::new(Sphere::new(
+        Vec3::new(190.0, 90.0, 190.0),
+        90.0,
         Rc::new(DefaultMaterial::default()),
     )));
 
